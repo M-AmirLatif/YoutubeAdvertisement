@@ -1,4 +1,5 @@
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import express from 'express';
@@ -18,9 +19,21 @@ const app = express();
 const port = process.env.PORT || 5000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  ...(process.env.CLIENT_URLS || '').split(',')
+].filter(Boolean).map((origin) => origin.trim());
 
 app.set('trust proxy', 1);
-app.use(cors({ origin: process.env.CLIENT_URL || true, credentials: true }));
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true
+}));
 app.use(express.json({ limit: '1mb' }));
 app.use(morgan('dev'));
 app.use((_req, res, next) => {
@@ -47,10 +60,16 @@ app.use('/api', (_req, res) => {
 });
 
 const distPath = path.join(__dirname, '..', 'dist');
-app.use(express.static(distPath));
-app.use((_req, res) => {
-  res.sendFile(path.join(distPath, 'index.html'));
-});
+if (fs.existsSync(path.join(distPath, 'index.html'))) {
+  app.use(express.static(distPath));
+  app.use((_req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+} else {
+  app.get('/', (_req, res) => {
+    res.json({ ok: true, service: 'youtube-advertisement-api', frontend: process.env.CLIENT_URL || null });
+  });
+}
 
 mongoose
   .connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/youtube-advertisement', {

@@ -56,14 +56,19 @@ Then open `http://localhost:5001`.
 
 ## Deployment
 
-- Frontend: deploy to Vercel or Netlify. Set `VITE_API_URL` to the hosted backend URL plus `/api`.
-- Backend: deploy this repo to Render or Heroku using `npm start`.
-- Database: use MongoDB Atlas and set `MONGO_URI` in the backend environment variables.
-- Required backend environment variables: `PORT`, `MONGO_URI`, `JWT_SECRET`, `CLIENT_URL`.
-- Optional business variables: `MIN_WITHDRAWAL_AMOUNT`, `REFERRAL_BONUS`, `MIN_WATCH_SECONDS`, `DEPOSIT_WALLET_ADDRESS`.
-- Optional branding variables: `VITE_APP_NAME`, `VITE_APP_SHORT_NAME`, `VITE_APP_TAGLINE`, `VITE_APP_AUTH_TAGLINE`, `VITE_APP_HERO_TITLE`, `VITE_APP_HERO_COPY`.
+Production target:
 
-For a single Render deployment, run `npm run build` during build and `npm start` as the start command. Express serves the built `dist` folder.
+- Backend API: Railway
+- Frontend app: Vercel
+- Database: MongoDB Atlas
+
+Railway uses `railway.json`. Vercel uses `vercel.json`.
+
+Required Railway variables: `MONGO_URI`, `JWT_SECRET`, `CLIENT_URL`, `CLIENT_URLS`, `MIN_WITHDRAWAL_AMOUNT`, `REFERRAL_BONUS`, `MIN_WATCH_SECONDS`, `DEPOSIT_WALLET_ADDRESS`.
+
+Required Vercel variable: `VITE_API_URL`.
+
+Optional Vercel branding variables: `VITE_APP_NAME`, `VITE_APP_SHORT_NAME`, `VITE_APP_TAGLINE`, `VITE_APP_AUTH_TAGLINE`, `VITE_APP_HERO_TITLE`, `VITE_APP_HERO_COPY`.
 
 Detailed deployment guide: `docs/DEPLOYMENT.md`
 
