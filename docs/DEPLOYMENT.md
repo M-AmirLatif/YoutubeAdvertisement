@@ -1,9 +1,9 @@
-# Deployment Guide: Railway + Vercel + MongoDB Atlas
+# Deployment Guide: Render + Vercel + MongoDB Atlas
 
 Use this setup:
 
 - MongoDB Atlas: production database
-- Railway: Node/Express API backend
+- Render: Node/Express API backend
 - Vercel: React/Vite frontend
 
 The frontend and backend are deployed as two separate services from the same GitHub repository.
@@ -12,7 +12,18 @@ The frontend and backend are deployed as two separate services from the same Git
 
 1. Create a free MongoDB Atlas cluster.
 2. Create a database user and password.
-3. In `Network Access`, allow Railway to connect. For the simplest free-tier setup, add `0.0.0.0/0`.
+3. In `Network Access`, add this IP entry:
+
+```text
+0.0.0.0/0
+```
+
+Comment:
+
+```text
+Render and Vercel deployment access
+```
+
 4. Copy the Node.js connection string.
 5. Use a database name like `youtube-advertisement`.
 
@@ -22,21 +33,30 @@ Example:
 mongodb+srv://USERNAME:PASSWORD@CLUSTER.mongodb.net/youtube-advertisement?retryWrites=true&w=majority
 ```
 
-## 2. Railway Backend
+## 2. Render Backend
 
-1. Open Railway.
-2. Create a new project.
-3. Choose `Deploy from GitHub repo`.
-4. Select `M-AmirLatif/YoutubeAdvertisement`.
-5. Railway will read `railway.json`.
+1. Open Render.
+2. Click `New`.
+3. Choose `Blueprint` if available, or choose `Web Service`.
+4. Connect GitHub repo:
 
-Railway settings:
+```text
+M-AmirLatif/YoutubeAdvertisement
+```
 
-- Root directory: `/`
-- Start command: `npm start`
-- Healthcheck path: `/api/health`
+If using Blueprint, Render reads `render.yaml`.
 
-Set these Railway variables:
+If creating Web Service manually:
+
+```text
+Root Directory: .
+Runtime: Node
+Build Command: npm install
+Start Command: npm start
+Health Check Path: /api/health
+```
+
+Set these Render environment variables:
 
 ```text
 NODE_ENV=production
@@ -50,24 +70,29 @@ MIN_WATCH_SECONDS=20
 DEPOSIT_WALLET_ADDRESS=your USDT wallet
 ```
 
-Do not set `VITE_API_URL` on Railway. That belongs on Vercel.
+Do not set `VITE_API_URL` on Render. That belongs on Vercel.
 
-After Railway deploys, copy the public backend URL. It will look similar to:
+After Render deploys, copy the public backend URL. It will look similar to:
 
 ```text
-https://your-railway-backend.up.railway.app
+https://youtube-advertisement-api.onrender.com
 ```
 
 Test:
 
 ```text
-https://your-railway-backend.up.railway.app/api/health
+https://youtube-advertisement-api.onrender.com/api/health
 ```
 
 ## 3. Vercel Frontend
 
 1. Open Vercel.
-2. Import the same GitHub repo: `M-AmirLatif/YoutubeAdvertisement`.
+2. Import GitHub repo:
+
+```text
+M-AmirLatif/YoutubeAdvertisement
+```
+
 3. Framework preset: `Vite`.
 4. Build command: `npm run build`.
 5. Output directory: `dist`.
@@ -75,7 +100,7 @@ https://your-railway-backend.up.railway.app/api/health
 Set these Vercel environment variables:
 
 ```text
-VITE_API_URL=https://your-railway-backend.up.railway.app/api
+VITE_API_URL=https://your-render-backend.onrender.com/api
 VITE_APP_NAME=AdWatch
 VITE_APP_SHORT_NAME=YT
 VITE_APP_TAGLINE=USDT rewards
@@ -86,20 +111,26 @@ VITE_APP_HERO_COPY=Manage video tasks, referral earnings, deposits, withdrawals,
 
 Deploy Vercel, then copy the Vercel app URL.
 
-## 4. Update Railway CORS
+## 4. Update Render CORS
 
-After Vercel deploys, go back to Railway and update:
+After Vercel deploys, go back to Render and update:
 
 ```text
 CLIENT_URL=https://your-vercel-app.vercel.app
-CLIENT_URLS=https://your-vercel-app.vercel.app,https://your-custom-domain.com
+CLIENT_URLS=https://your-vercel-app.vercel.app
 ```
 
-Redeploy Railway after changing variables.
+If you use a custom domain later:
+
+```text
+CLIENT_URLS=https://your-vercel-app.vercel.app,https://yourdomain.com
+```
+
+Redeploy Render after changing variables.
 
 ## 5. First Production Setup
 
-Open Railway Shell and run:
+Open Render Shell and run:
 
 ```bash
 npm run create-admin -- owner@clientdomain.com strong-password-here Owner
@@ -110,16 +141,10 @@ Use the owner account to log into the Vercel frontend.
 
 ## 6. Production Smoke Test
 
-From your local machine:
-
-```bash
-SMOKE_BASE_URL=https://your-railway-backend.up.railway.app SMOKE_ADMIN_EMAIL=owner@clientdomain.com SMOKE_ADMIN_PASSWORD=strong-password-here npm run smoke-test
-```
-
 PowerShell:
 
 ```powershell
-$env:SMOKE_BASE_URL="https://your-railway-backend.up.railway.app"
+$env:SMOKE_BASE_URL="https://your-render-backend.onrender.com"
 $env:SMOKE_ADMIN_EMAIL="owner@clientdomain.com"
 $env:SMOKE_ADMIN_PASSWORD="strong-password-here"
 npm run smoke-test
@@ -140,20 +165,3 @@ Before handoff:
 9. Submit a withdrawal as user.
 10. Mark withdrawal paid as admin.
 11. Confirm audit logs show admin actions.
-
-## 8. Client Handoff
-
-Give the client:
-
-- Vercel frontend URL
-- Owner admin email
-- Owner admin password
-- `docs/ADMIN_GUIDE.md`
-- `docs/QA_CHECKLIST.md`
-
-Keep these private:
-
-- MongoDB Atlas password
-- Railway account password
-- Vercel account password
-- `JWT_SECRET`

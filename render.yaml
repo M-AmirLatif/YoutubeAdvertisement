@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: youtube-advertisement-api
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CLIENT_URL
+        sync: false
+      - key: CLIENT_URLS
+        sync: false
+      - key: MIN_WITHDRAWAL_AMOUNT
+        value: "5"
+      - key: REFERRAL_BONUS
+        value: "1"
+      - key: MIN_WATCH_SECONDS
+        value: "20"
+      - key: DEPOSIT_WALLET_ADDRESS
+        sync: false

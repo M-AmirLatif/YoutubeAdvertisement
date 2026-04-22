@@ -58,13 +58,13 @@ Then open `http://localhost:5001`.
 
 Production target:
 
-- Backend API: Railway
+- Backend API: Render
 - Frontend app: Vercel
 - Database: MongoDB Atlas
 
-Railway uses `railway.json`. Vercel uses `vercel.json`.
+Render uses `render.yaml`. Vercel uses `vercel.json`.
 
-Required Railway variables: `MONGO_URI`, `JWT_SECRET`, `CLIENT_URL`, `CLIENT_URLS`, `MIN_WITHDRAWAL_AMOUNT`, `REFERRAL_BONUS`, `MIN_WATCH_SECONDS`, `DEPOSIT_WALLET_ADDRESS`.
+Required Render variables: `MONGO_URI`, `JWT_SECRET`, `CLIENT_URL`, `CLIENT_URLS`, `MIN_WITHDRAWAL_AMOUNT`, `REFERRAL_BONUS`, `MIN_WATCH_SECONDS`, `DEPOSIT_WALLET_ADDRESS`.
 
 Required Vercel variable: `VITE_API_URL`.
 
