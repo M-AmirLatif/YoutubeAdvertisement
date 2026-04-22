@@ -70,11 +70,6 @@ export default function Profile() {
           </label>
           <button className="primary">Update Password</button>
         </form>
-        <article className="settings-card">
-          <h2>Need Help?</h2>
-          <p>If you need to change your email or phone number, please contact support.</p>
-          <button className="secondary">Contact Support</button>
-        </article>
       </section>
     </div>
   );

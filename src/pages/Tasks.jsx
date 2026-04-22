@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { CheckCircle2, PlayCircle } from 'lucide-react';
 import { api } from '../api.js';
+import { useAuth } from '../context/AuthContext.jsx';
 
 function ensureYouTubeApi() {
   if (window.YT?.Player) return Promise.resolve(window.YT);
@@ -83,10 +84,9 @@ function VideoTask({ video, progress, onComplete }) {
 }
 
 export default function Tasks() {
+  const { user } = useAuth();
   const [videos, setVideos] = useState([]);
   const [progressByVideo, setProgressByVideo] = useState({});
-  const [surveyAnswer, setSurveyAnswer] = useState('');
-  const [surveyDone, setSurveyDone] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -102,35 +102,18 @@ export default function Tasks() {
   }
 
   const completedVideos = Object.values(progressByVideo).filter((item) => item.completed).length;
-  const dailyLimit = 10;
-  const displayCompleted = Math.min(dailyLimit, completedVideos + (surveyDone ? 1 : 0));
+  const dailyLimit = user?.activePlan?.dailyLimit || videos.length || 0;
+  const displayCompleted = Math.min(dailyLimit, completedVideos);
+  const progressPercent = dailyLimit ? (displayCompleted / dailyLimit) * 100 : 0;
 
   return (
     <div className="tasks-page">
       <section className="survey-progress">
         <div>
           <h2>Today's Progress</h2>
-          <div className="survey-track"><span style={{ width: `${(displayCompleted / dailyLimit) * 100}%` }} /></div>
+          <div className="survey-track"><span style={{ width: `${progressPercent}%` }} /></div>
         </div>
         <strong>{displayCompleted} / {dailyLimit}</strong>
-      </section>
-
-      <section className="survey-card">
-        <h2>Q: What is "Venture Capital"?</h2>
-        {[
-          'Money used for vacations',
-          'Funding provided to startups with high growth potential',
-          'Personal savings of a CEO',
-          'Government taxes'
-        ].map((answer) => (
-          <label key={answer} className="answer-option">
-            <input type="radio" name="survey" checked={surveyAnswer === answer} onChange={() => setSurveyAnswer(answer)} />
-            <span>{answer}</span>
-          </label>
-        ))}
-        <button className="primary" disabled={!surveyAnswer || surveyDone} onClick={() => setSurveyDone(true)}>
-          {surveyDone ? 'Answer Submitted' : 'Submit Answer'}
-        </button>
       </section>
 
       {error && <div className="alert">{error}</div>}

@@ -39,12 +39,6 @@ export default function Dashboard() {
         </div>
       </section>
 
-      <div className="ad-strip">
-        <strong>Video Campaigns</strong>
-        <span>Complete tasks and earn rewards</span>
-        <button>Start Watching</button>
-      </div>
-
       <section className="invite-panel" id="invite">
         <h2><Share2 size={30} fill="currentColor" />Invite & Earn</h2>
         <p>Share your link with friends. Earn 15% from their earnings instantly.</p>
@@ -59,19 +53,6 @@ export default function Dashboard() {
         </div>
       </section>
 
-      <section className="panel dashboard-activity">
-        <div className="section-title"><span>Recent activity</span></div>
-        <div className="table-list">
-          {(data?.transactions || []).map((tx) => (
-            <div key={tx._id} className="table-row">
-              <span>{tx.type}</span>
-              <strong>${tx.amount.toFixed(2)}</strong>
-              <em>{tx.status}</em>
-            </div>
-          ))}
-          {!data?.transactions?.length && <p className="muted">No transactions yet.</p>}
-        </div>
-      </section>
     </div>
   );
 }
