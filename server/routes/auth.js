@@ -7,7 +7,7 @@ import Transaction from '../models/Transaction.js';
 import { makeReferralCode } from '../utils/youtube.js';
 import { requireAuth } from '../middleware/auth.js';
 import { rateLimit } from '../middleware/rateLimit.js';
-import { REFERRAL_BONUS } from '../config/business.js';
+import { REFERRAL_LEVEL_1_BONUS, REFERRAL_LEVEL_2_BONUS } from '../config/business.js';
 
 const router = express.Router();
 
@@ -62,17 +62,33 @@ router.post('/register', authLimiter, async (req, res) => {
       referredBy: referrer?._id || null
     });
 
-    if (referrer) {
-      referrer.balance += REFERRAL_BONUS;
-      referrer.referralEarnings += REFERRAL_BONUS;
-      await referrer.save();
+    if (referrer && REFERRAL_LEVEL_1_BONUS > 0) {
+      await User.findByIdAndUpdate(referrer._id, {
+        $inc: { balance: REFERRAL_LEVEL_1_BONUS, referralEarnings: REFERRAL_LEVEL_1_BONUS }
+      });
       await Transaction.create({
         user: referrer._id,
         type: 'referral',
-        amount: REFERRAL_BONUS,
+        amount: REFERRAL_LEVEL_1_BONUS,
         status: 'approved',
-        notes: `Referral bonus for inviting ${username}`
+        notes: `Level 1 referral bonus for inviting ${username}`
       });
+    }
+
+    if (referrer?.referredBy && REFERRAL_LEVEL_2_BONUS > 0) {
+      const levelTwoReferrer = await User.findById(referrer.referredBy);
+      if (levelTwoReferrer && !levelTwoReferrer.isSuspended) {
+        await User.findByIdAndUpdate(levelTwoReferrer._id, {
+          $inc: { balance: REFERRAL_LEVEL_2_BONUS, referralEarnings: REFERRAL_LEVEL_2_BONUS }
+        });
+        await Transaction.create({
+          user: levelTwoReferrer._id,
+          type: 'referral',
+          amount: REFERRAL_LEVEL_2_BONUS,
+          status: 'approved',
+          notes: `Level 2 referral bonus from ${username} through ${referrer.username}`
+        });
+      }
     }
 
     res.status(201).json({ token: signToken(user), user: publicUser(user) });

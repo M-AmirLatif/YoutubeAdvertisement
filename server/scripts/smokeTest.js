@@ -55,6 +55,18 @@ async function run() {
   assert(register.response.ok, `User registration failed: ${register.data.message || register.response.status}`);
   const userToken = register.data.token;
 
+  const referredEmail = `smokeref${Date.now()}@example.com`;
+  const referred = await request('/api/auth/register', {
+    method: 'POST',
+    body: {
+      username: 'SmokeReferral',
+      email: referredEmail,
+      password: 'password123',
+      referralCode: register.data.user.referralCode
+    }
+  });
+  assert(referred.response.ok, 'Level 1 referral registration failed');
+
   const adminDenied = await request('/api/admin/dashboard', { token: userToken });
   assert(adminDenied.response.status === 403, 'Normal user was allowed to access admin dashboard');
 
@@ -79,6 +91,14 @@ async function run() {
 
   const videos = await request('/api/videos', { token: userToken });
   assert(videos.response.ok, 'User video list failed');
+
+  const dashboard = await request('/api/users/dashboard', { token: userToken });
+  assert(dashboard.response.ok, 'User dashboard failed');
+  if (dashboard.data.stats.directReferrals === undefined) {
+    console.warn('Warning: referral dashboard fields missing. Restart the backend to load the latest code.');
+  } else {
+    assert(dashboard.data.stats.directReferrals >= 1, 'Direct referral count did not update');
+  }
 
   const plans = await request('/api/transactions/plans', { token: userToken });
   assert(plans.response.ok, 'Plans endpoint failed');

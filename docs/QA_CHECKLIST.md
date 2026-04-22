@@ -14,6 +14,8 @@ Run this checklist before handing the platform to a client.
 
 - New user can sign up.
 - Invalid referral code is rejected.
+- Referral link/code creates a level 1 referral.
+- A referral made by a direct referral creates a level 2 referral reward.
 - User can log in.
 - User dashboard loads.
 - User can watch an active task.

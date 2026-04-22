@@ -27,6 +27,7 @@ export default function Dashboard() {
         <StatCard label="Today earnings" value={`$${(user?.todayEarnings || 0).toFixed(2)}`} hint="Updated after completed videos" tone="blue" />
         <StatCard label="Total withdrawn" value={`$${(user?.totalWithdrawn || 0).toFixed(2)}`} hint="Lifetime paid requests" tone="orange" />
         <StatCard label="Referral earnings" value={`$${(user?.referralEarnings || 0).toFixed(2)}`} hint="Invite commission" tone="purple" />
+        <StatCard label="Referral team" value={`${stats.directReferrals || 0}/${stats.levelTwoReferrals || 0}`} hint="Level 1 / Level 2 users" tone="blue" />
       </section>
 
       <section className="dashboard-grid">
@@ -47,7 +48,7 @@ export default function Dashboard() {
             <span>Referral link</span>
             <button className="icon-button" onClick={() => navigator.clipboard.writeText(referralLink)} aria-label="Copy referral link"><Copy size={18} /></button>
           </div>
-          <p className="muted">Invite members and receive a signup commission when they join with your code.</p>
+          <p className="muted">Invite members and earn from two levels: your direct referrals and the people they invite.</p>
           <div className="copy-box">{referralLink}</div>
           <div className="code-pill">{user?.referralCode}</div>
         </article>

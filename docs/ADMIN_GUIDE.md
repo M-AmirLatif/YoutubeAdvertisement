@@ -112,6 +112,8 @@ Business values are configured in `.env`:
 
 - `MIN_WITHDRAWAL_AMOUNT`
 - `REFERRAL_BONUS`
+- `REFERRAL_LEVEL_1_BONUS`
+- `REFERRAL_LEVEL_2_BONUS`
 - `MIN_WATCH_SECONDS`
 - `DEPOSIT_WALLET_ADDRESS`
 - `DEPOSIT_WALLET_TRC20`
@@ -125,3 +127,28 @@ Business values are configured in `.env`:
 - `VITE_APP_HERO_COPY`
 
 Restart the server after changing `.env`.
+
+## Referral Levels
+
+Every user has a referral code and referral link on the dashboard.
+
+The platform supports two signup referral levels:
+
+- Level 1: direct invite
+- Level 2: invite made by a direct referral
+
+Example:
+
+```text
+A invites B
+B invites C
+```
+
+When B joins, A receives the level 1 bonus.
+
+When C joins, B receives the level 1 bonus and A receives the level 2 bonus.
+
+Amounts are controlled by:
+
+- `REFERRAL_LEVEL_1_BONUS`
+- `REFERRAL_LEVEL_2_BONUS`

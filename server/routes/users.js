@@ -8,14 +8,28 @@ import { requireAuth } from '../middleware/auth.js';
 const router = express.Router();
 
 router.get('/dashboard', requireAuth, async (req, res) => {
-  const [completedToday, totalCompleted, transactions] = await Promise.all([
+  const [completedToday, totalCompleted, transactions, directReferrals, levelTwoReferrals] = await Promise.all([
     Progress.countDocuments({
       user: req.user._id,
       completed: true,
       completedAt: { $gte: new Date(new Date().setHours(0, 0, 0, 0)) }
     }),
     Progress.countDocuments({ user: req.user._id, completed: true }),
-    Transaction.find({ user: req.user._id }).sort({ createdAt: -1 }).limit(8)
+    Transaction.find({ user: req.user._id }).sort({ createdAt: -1 }).limit(8),
+    User.countDocuments({ referredBy: req.user._id }),
+    User.aggregate([
+      { $match: { referredBy: req.user._id } },
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_id',
+          foreignField: 'referredBy',
+          as: 'children'
+        }
+      },
+      { $project: { count: { $size: '$children' } } },
+      { $group: { _id: null, total: { $sum: '$count' } } }
+    ])
   ]);
 
   res.json({
@@ -23,6 +37,8 @@ router.get('/dashboard', requireAuth, async (req, res) => {
     stats: {
       completedToday,
       totalCompleted,
+      directReferrals,
+      levelTwoReferrals: levelTwoReferrals[0]?.total || 0,
       dailyLimit: req.user.activePlan.dailyLimit,
       progressPercent: Math.min(100, Math.round((completedToday / req.user.activePlan.dailyLimit) * 100))
     },
