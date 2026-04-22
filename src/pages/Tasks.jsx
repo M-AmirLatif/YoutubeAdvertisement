@@ -85,6 +85,8 @@ function VideoTask({ video, progress, onComplete }) {
 export default function Tasks() {
   const [videos, setVideos] = useState([]);
   const [progressByVideo, setProgressByVideo] = useState({});
+  const [surveyAnswer, setSurveyAnswer] = useState('');
+  const [surveyDone, setSurveyDone] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -99,14 +101,40 @@ export default function Tasks() {
     setProgressByVideo((current) => ({ ...current, [videoId]: progress }));
   }
 
+  const completedVideos = Object.values(progressByVideo).filter((item) => item.completed).length;
+  const dailyLimit = 10;
+  const displayCompleted = Math.min(dailyLimit, completedVideos + (surveyDone ? 1 : 0));
+
   return (
-    <div className="page-stack">
-      <section className="panel page-heading">
-        <h2>Video tasks</h2>
-        <p>Keep the video playing until it finishes. Rewards are paid once per video after the minimum watch time and daily plan limit checks pass.</p>
+    <div className="tasks-page">
+      <section className="survey-progress">
+        <div>
+          <h2>Today's Progress</h2>
+          <div className="survey-track"><span style={{ width: `${(displayCompleted / dailyLimit) * 100}%` }} /></div>
+        </div>
+        <strong>{displayCompleted} / {dailyLimit}</strong>
       </section>
+
+      <section className="survey-card">
+        <h2>Q: What is "Venture Capital"?</h2>
+        {[
+          'Money used for vacations',
+          'Funding provided to startups with high growth potential',
+          'Personal savings of a CEO',
+          'Government taxes'
+        ].map((answer) => (
+          <label key={answer} className="answer-option">
+            <input type="radio" name="survey" checked={surveyAnswer === answer} onChange={() => setSurveyAnswer(answer)} />
+            <span>{answer}</span>
+          </label>
+        ))}
+        <button className="primary" disabled={!surveyAnswer || surveyDone} onClick={() => setSurveyDone(true)}>
+          {surveyDone ? 'Answer Submitted' : 'Submit Answer'}
+        </button>
+      </section>
+
       {error && <div className="alert">{error}</div>}
-      <section className="video-grid">
+      <section className="video-grid survey-video-grid">
         {loading && <div className="empty-state">Loading active video tasks...</div>}
         {videos.map((video) => (
           <VideoTask key={video._id} video={video} progress={progressByVideo[video._id]} onComplete={handleComplete} />

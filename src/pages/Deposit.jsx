@@ -1,32 +1,39 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { Copy } from 'lucide-react';
 import { api } from '../api.js';
 
 export default function Deposit() {
   const [plans, setPlans] = useState([]);
-  const [minWithdrawal, setMinWithdrawal] = useState(5);
   const [depositWallet, setDepositWallet] = useState('');
   const [depositWallets, setDepositWallets] = useState({});
-  const [walletAddress, setWalletAddress] = useState('');
   const [network, setNetwork] = useState('USDT-TRC20');
   const [proof, setProof] = useState('');
-  const [withdrawAmount, setWithdrawAmount] = useState('');
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+
   const enabledNetworks = Object.keys(depositWallets).filter((key) => depositWallets[key] || depositWallet);
   const networkOptions = enabledNetworks.length ? enabledNetworks : ['USDT-TRC20', 'USDT-BEP20'];
+  const activeWallet = depositWallets[network] || depositWallet;
+  const amount = selectedPlan?.price || 0;
+
+  const displayPlans = useMemo(() => plans.map((plan) => ({
+    ...plan,
+    dailyPercent: plan.price === 0 ? '$0.10 Daily' : `${Math.max(1, plan.rewardPerVideo).toFixed(2)}% Daily`
+  })), [plans]);
 
   useEffect(() => {
-    api('/transactions/plans').then(({ plans, minWithdrawal, depositWallet, depositWallets }) => {
+    api('/transactions/plans').then(({ plans, depositWallet, depositWallets }) => {
       setPlans(plans);
-      setMinWithdrawal(minWithdrawal);
       setDepositWallet(depositWallet);
       setDepositWallets(depositWallets || {});
+      const networks = Object.keys(depositWallets || {}).filter((key) => depositWallets[key] || depositWallet);
+      if (networks[0]) setNetwork(networks[0]);
     }).catch((err) => setError(err.message)).finally(() => setLoading(false));
   }, []);
 
-  async function deposit(event) {
+  async function submitDeposit(event) {
     event.preventDefault();
     if (!selectedPlan) return;
     setMessage('');
@@ -34,92 +41,69 @@ export default function Deposit() {
     try {
       const response = await api('/transactions/deposit', {
         method: 'POST',
-        body: JSON.stringify({ planName: selectedPlan.name, amount: selectedPlan.price, walletAddress, network, proof })
+        body: JSON.stringify({ planName: selectedPlan.name, amount, network, proof })
       });
-      setMessage(`${response.plan.name} deposit request is pending admin review.`);
+      setMessage(response.transaction.status === 'approved'
+        ? `${response.plan.name} plan activated.`
+        : `${response.plan.name} deposit request is pending admin review.`);
       setProof('');
-      setSelectedPlan(null);
-    } catch (err) {
-      setError(err.message);
-    }
-  }
-
-  async function withdraw(event) {
-    event.preventDefault();
-    setMessage('');
-    setError('');
-    try {
-      await api('/transactions/withdraw', {
-        method: 'POST',
-        body: JSON.stringify({ amount: withdrawAmount, walletAddress, network })
-      });
-      setMessage('Withdrawal request submitted.');
-      setWithdrawAmount('');
     } catch (err) {
       setError(err.message);
     }
   }
 
   return (
-    <div className="page-stack">
-      {message && <div className="success">{message}</div>}
-      {error && <div className="alert">{error}</div>}
-      <section className="panel page-heading">
-        <h2>Deposits and withdrawals</h2>
-        <p>Select the correct USDT network, send funds to the matching platform wallet, then submit the transaction hash or proof for admin review. Minimum withdrawal is ${minWithdrawal.toFixed(2)}.</p>
-      </section>
-      <section className="plans-grid">
-        {loading && <div className="empty-state">Loading deposit plans...</div>}
-        {plans.map((plan) => (
-          <article key={plan.name} className="plan-card">
-            <span>{plan.name}</span>
-            <strong>${plan.price}</strong>
-            <p>{plan.dailyLimit} daily videos</p>
-            <p>${plan.rewardPerVideo.toFixed(2)} reward per video</p>
-            <button className="primary" onClick={() => {
-              setSelectedPlan(plan);
-              setMessage('');
-              setError('');
-            }}>Choose plan</button>
-          </article>
-        ))}
+    <div className="funds-layout">
+      <section>
+        <h1 className="page-title">Add Funds</h1>
+        <h2 className="sub-title">Select a Plan Amount</h2>
+        {error && <div className="alert">{error}</div>}
+        {message && <div className="success">{message}</div>}
+        <div className="fund-plans-grid">
+          {loading && <div className="empty-state">Loading plans...</div>}
+          {displayPlans.map((plan) => (
+            <button
+              key={plan.name}
+              type="button"
+              className={`fund-plan-card ${selectedPlan?.name === plan.name ? 'selected' : ''}`}
+              onClick={() => {
+                setSelectedPlan(plan);
+                setMessage('');
+                setError('');
+              }}
+            >
+              <strong>{plan.price === 0 ? 'FREE' : `$${plan.price}`}</strong>
+              <span>{plan.name} Plan</span>
+              <em>{plan.dailyPercent}</em>
+            </button>
+          ))}
+        </div>
       </section>
 
-      {selectedPlan && (
-        <section className="panel transaction-panel">
-          <div className="section-title">
-            <span>Plan payment</span>
-            <strong>{selectedPlan.name} - ${selectedPlan.price}</strong>
-          </div>
-          <div className="payment-steps">
-            <div><strong>1</strong><span>Select the same network you will use from your wallet or exchange.</span></div>
-            <div><strong>2</strong><span>Send exactly ${selectedPlan.price} USDT to the platform wallet shown below.</span></div>
-            <div><strong>3</strong><span>Paste the transaction hash or proof reference and submit for admin verification.</span></div>
-          </div>
-          {(depositWallets[network] || depositWallet) && <div className="copy-box">Platform {network} deposit wallet: {depositWallets[network] || depositWallet}</div>}
-          <form className="form compact" onSubmit={deposit}>
-            <label>Network
-              <select value={network} onChange={(e) => setNetwork(e.target.value)}>
-                {networkOptions.map((item) => <option key={item} value={item}>{item}</option>)}
-              </select>
-            </label>
-            <label>Transaction hash / proof<input required value={proof} onChange={(e) => setProof(e.target.value)} placeholder="Paste USDT transaction hash" /></label>
-            <label>Your withdrawal wallet<input value={walletAddress} onChange={(e) => setWalletAddress(e.target.value)} placeholder="Optional wallet for future withdrawals" /></label>
-            <div className="row-actions">
-              <button className="primary">Submit for verification</button>
-              <button type="button" className="secondary" onClick={() => setSelectedPlan(null)}>Cancel</button>
-            </div>
-          </form>
-        </section>
-      )}
-
-      <section className="panel">
-        <div className="section-title"><span>Withdraw funds</span></div>
-        <form className="inline-form" onSubmit={withdraw}>
-          <input type="number" min={minWithdrawal} step="0.01" required value={withdrawAmount} onChange={(e) => setWithdrawAmount(e.target.value)} placeholder={`Minimum $${minWithdrawal.toFixed(2)}`} />
-          <button className="primary">Request withdrawal</button>
+      <aside className="payment-card">
+        <h2>Payment Details</h2>
+        <div className="wallet-box">
+          <span>Send USDT ({network.replace('USDT-', '')}) to:</span>
+          <strong>{activeWallet || 'Wallet not configured'}</strong>
+          <button type="button" onClick={() => activeWallet && navigator.clipboard.writeText(activeWallet)}>
+            <Copy size={17} /> Copy Address
+          </button>
+        </div>
+        <form className="payment-form" onSubmit={submitDeposit}>
+          <label>Network
+            <select value={network} onChange={(event) => setNetwork(event.target.value)}>
+              {networkOptions.map((item) => <option key={item} value={item}>{item}</option>)}
+            </select>
+          </label>
+          <label>Amount (USDT)
+            <input value={amount.toFixed(2)} readOnly />
+          </label>
+          <label>Transaction Hash / Proof
+            <input required={amount > 0} value={proof} onChange={(event) => setProof(event.target.value)} placeholder={amount > 0 ? 'Paste transaction hash' : 'No payment needed for free plan'} />
+          </label>
+          <button className="primary" disabled={!selectedPlan}>{amount > 0 ? 'Submit Deposit' : 'Activate Free Plan'}</button>
         </form>
-      </section>
+      </aside>
     </div>
   );
 }

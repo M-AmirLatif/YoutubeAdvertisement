@@ -41,7 +41,7 @@ router.post('/deposit', requireAuth, async (req, res) => {
   const { planName, amount, walletAddress, network, proof } = req.body;
   const plan = plans.find((item) => item.name === planName);
   if (!plan) return res.status(400).json({ message: 'Select a valid plan.' });
-  if (!proof || String(proof).trim().length < 6) {
+  if (plan.price > 0 && (!proof || String(proof).trim().length < 6)) {
     return res.status(400).json({ message: 'Enter a transaction hash or payment proof reference.' });
   }
 
@@ -52,10 +52,14 @@ router.post('/deposit', requireAuth, async (req, res) => {
     plan: plan.name,
     walletAddress,
     network,
-    proof: String(proof).trim(),
-    status: 'pending',
-    notes: 'USDT deposit request'
+    proof: String(proof || '').trim(),
+    status: plan.price > 0 ? 'pending' : 'approved',
+    notes: plan.price > 0 ? 'USDT deposit request' : 'Free plan activated'
   });
+
+  if (plan.price <= 0) {
+    await User.findByIdAndUpdate(req.user._id, { activePlan: plan });
+  }
 
   res.status(201).json({ transaction, plan });
 });

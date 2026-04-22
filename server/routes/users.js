@@ -46,6 +46,32 @@ router.get('/dashboard', requireAuth, async (req, res) => {
   });
 });
 
+router.get('/team', requireAuth, async (req, res) => {
+  const level1 = await User.find({ referredBy: req.user._id })
+    .select('username email phone referralCode referralEarnings balance createdAt')
+    .sort({ createdAt: -1 });
+
+  const level1Ids = level1.map((user) => user._id);
+  const level2 = level1Ids.length
+    ? await User.find({ referredBy: { $in: level1Ids } })
+      .select('username email phone referralCode referralEarnings balance createdAt referredBy')
+      .sort({ createdAt: -1 })
+    : [];
+
+  res.json({
+    levels: {
+      level1,
+      level2
+    },
+    stats: {
+      level1: level1.length,
+      level2: level2.length,
+      total: level1.length + level2.length,
+      referralEarnings: req.user.referralEarnings || 0
+    }
+  });
+});
+
 router.put('/profile', requireAuth, async (req, res) => {
   const { username, phone, email, password } = req.body;
   const updates = {};

@@ -7,8 +7,8 @@ const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: Home },
   { to: '/deposit', label: 'Deposit', icon: WalletCards },
   { to: '/tasks', label: 'Tasks & Surveys', icon: ClipboardList },
-  { to: '/deposit', label: 'Withdraw', icon: ReceiptText },
-  { to: '/dashboard', label: 'My Team', icon: UsersRound },
+  { to: '/withdraw', label: 'Withdraw', icon: ReceiptText },
+  { to: '/team', label: 'My Team', icon: UsersRound },
   { to: '/profile', label: 'Profile', icon: UserCog }
 ];
 
@@ -60,29 +60,18 @@ export default function Layout() {
         </button>
       </aside>
       <main>
-        <header className="topbar">
-          <div>
-            {isDashboard ? (
-              <>
-                <h1>Dashboard</h1>
-                <p>Welcome back, {user?.username || 'Member'}!</p>
-              </>
-            ) : (
-              <>
-                <span className="eyebrow">Welcome back</span>
-                <h1>{user?.username || 'Member'}</h1>
-              </>
-            )}
-          </div>
-          {isDashboard ? (
+        {isDashboard && (
+          <header className="topbar">
+            <div>
+              <h1>Dashboard</h1>
+              <p>Welcome back, {user?.username || 'Member'}!</p>
+            </div>
             <div className="topbar-actions">
               <Link className="survey-button primary-action" to="/tasks"><Clapperboard size={22} fill="currentColor" />Start Task</Link>
               <Link className="survey-button green" to="/tasks"><Crown size={18} fill="currentColor" />Free Video Tasks</Link>
             </div>
-          ) : (
-            <div className="avatar">{(user?.username || 'U').slice(0, 1).toUpperCase()}</div>
-          )}
-        </header>
+          </header>
+        )}
         <Outlet />
       </main>
     </div>
