@@ -15,6 +15,7 @@ const adminItems = [
   { to: '/admin/videos', label: 'Video Links', icon: Clapperboard },
   { to: '/admin/users', label: 'Users', icon: UsersRound },
   { to: '/admin/transactions', label: 'Requests', icon: WalletCards },
+  { to: '/admin/task-history', label: 'Task History', icon: ClipboardList },
   { to: '/admin/audit-logs', label: 'Audit Logs', icon: ClipboardList }
 ];
 

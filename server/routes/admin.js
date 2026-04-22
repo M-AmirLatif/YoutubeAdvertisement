@@ -74,6 +74,100 @@ router.get('/users', async (_req, res) => {
   });
 });
 
+router.get('/task-history', async (req, res) => {
+  const status = String(req.query.status || 'all');
+  const search = String(req.query.search || '').trim();
+  const page = Math.max(1, Number(req.query.page || 1));
+  const limit = Math.min(100, Math.max(10, Number(req.query.limit || 50)));
+  const match = {};
+
+  if (status === 'completed') match.completed = true;
+  if (status === 'incomplete') match.completed = false;
+  if (status === 'rewarded') match.rewardPaid = true;
+
+  const pipeline = [
+    { $match: match },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'user',
+        foreignField: '_id',
+        as: 'user'
+      }
+    },
+    { $unwind: '$user' },
+    {
+      $lookup: {
+        from: 'videos',
+        localField: 'video',
+        foreignField: '_id',
+        as: 'video'
+      }
+    },
+    { $unwind: '$video' }
+  ];
+
+  if (search) {
+    pipeline.push({
+      $match: {
+        $or: [
+          { 'user.email': { $regex: search, $options: 'i' } },
+          { 'user.username': { $regex: search, $options: 'i' } },
+          { 'video.title': { $regex: search, $options: 'i' } },
+          { ipAddress: { $regex: search, $options: 'i' } }
+        ]
+      }
+    });
+  }
+
+  pipeline.push(
+    { $sort: { updatedAt: -1 } },
+    {
+      $facet: {
+        rows: [
+          { $skip: (page - 1) * limit },
+          { $limit: limit },
+          {
+            $project: {
+              watchedSeconds: 1,
+              percent: 1,
+              completed: 1,
+              completedAt: 1,
+              rewardPaid: 1,
+              ipAddress: 1,
+              userAgent: 1,
+              createdAt: 1,
+              updatedAt: 1,
+              user: {
+                _id: '$user._id',
+                username: '$user.username',
+                email: '$user.email',
+                isSuspended: '$user.isSuspended'
+              },
+              video: {
+                _id: '$video._id',
+                title: '$video.title',
+                reward: '$video.reward',
+                durationSeconds: '$video.durationSeconds',
+                isActive: '$video.isActive'
+              }
+            }
+          }
+        ],
+        total: [{ $count: 'count' }]
+      }
+    }
+  );
+
+  const [result] = await Progress.aggregate(pipeline);
+  res.json({
+    rows: result?.rows || [],
+    total: result?.total?.[0]?.count || 0,
+    page,
+    limit
+  });
+});
+
 router.put('/users/:id', async (req, res) => {
   const { role, balance, isSuspended } = req.body;
   const target = await User.findById(req.params.id);

@@ -34,6 +34,8 @@ Run this checklist before handing the platform to a client.
 - Admin cannot alter protected owner account unless logged in as owner.
 - Admin dashboard shows risk signals when more than one user completes tasks from the same IP.
 - Admin user list shows completed tasks and pending withdrawal totals.
+- Admin task history shows user/video watch percent, watched seconds, completed status, reward status, IP, and user-agent.
+- Normal user cannot access admin task history.
 
 ## Deposit Flow
 

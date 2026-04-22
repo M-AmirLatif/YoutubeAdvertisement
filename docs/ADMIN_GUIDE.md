@@ -86,6 +86,26 @@ The admin dashboard includes a basic repeated-IP signal. If multiple users compl
 
 The user list also shows completed task counts and pending withdrawal totals to help admins review account activity quickly.
 
+## Task History
+
+Open `Task History` to verify whether a user watched a video.
+
+The page shows:
+
+- user email and username
+- video title
+- reward amount
+- target duration
+- watched percent
+- watched seconds
+- completed or incomplete status
+- reward paid or not
+- completion date/time
+- IP address
+- browser/device user-agent
+
+Use the filters to view all records, completed records, incomplete records, or rewarded records. Use search to find a user email, video title, or IP address.
+
 ## Business Settings
 
 Business values are configured in `.env`:

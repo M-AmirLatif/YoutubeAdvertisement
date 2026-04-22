@@ -12,6 +12,7 @@ import AdminDashboard from './pages/AdminDashboard.jsx';
 import AdminUsers from './pages/AdminUsers.jsx';
 import AdminTransactions from './pages/AdminTransactions.jsx';
 import AdminAuditLogs from './pages/AdminAuditLogs.jsx';
+import AdminTaskHistory from './pages/AdminTaskHistory.jsx';
 
 function Protected({ children }) {
   const { token } = useAuth();
@@ -49,6 +50,7 @@ function AppRoutes() {
         <Route path="admin/videos" element={<AdminOnly><VideosAdmin /></AdminOnly>} />
         <Route path="admin/users" element={<AdminOnly><AdminUsers /></AdminOnly>} />
         <Route path="admin/transactions" element={<AdminOnly><AdminTransactions /></AdminOnly>} />
+        <Route path="admin/task-history" element={<AdminOnly><AdminTaskHistory /></AdminOnly>} />
         <Route path="admin/audit-logs" element={<AdminOnly><AdminAuditLogs /></AdminOnly>} />
       </Route>
     </Routes>

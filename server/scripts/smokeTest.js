@@ -42,6 +42,11 @@ async function run() {
     console.warn('Warning: admin dashboard risk signal field missing. Restart the backend to load the latest code.');
   }
 
+  const taskHistory = await request('/api/admin/task-history?limit=10', { token: adminToken });
+  if (!taskHistory.response.ok) {
+    console.warn('Warning: admin task history failed. Restart the backend to load the latest code.');
+  }
+
   const email = `smoke${Date.now()}@example.com`;
   const register = await request('/api/auth/register', {
     method: 'POST',
@@ -52,6 +57,11 @@ async function run() {
 
   const adminDenied = await request('/api/admin/dashboard', { token: userToken });
   assert(adminDenied.response.status === 403, 'Normal user was allowed to access admin dashboard');
+
+  const historyDenied = await request('/api/admin/task-history', { token: userToken });
+  if (![403, 404].includes(historyDenied.response.status)) {
+    throw new Error('Normal user was allowed to access task history');
+  }
 
   const depositMissingProof = await request('/api/transactions/deposit', {
     method: 'POST',
