@@ -5,4 +5,7 @@ dist
 npm-debug.log*
 *.log
 debug-localhost.png
+login-check.png
+signup-check.png
 .edge-test-profile*/
+.edge-auth-check/

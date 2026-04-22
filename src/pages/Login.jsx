@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import AuthFrame from '../components/AuthFrame.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { api } from '../api.js';
@@ -22,6 +23,7 @@ export default function Login() {
   const [resetToken, setResetToken] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [showReset, setShowReset] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
@@ -71,15 +73,22 @@ export default function Login() {
   }
 
   return (
-    <AuthFrame title="Sign in" subtitle="Access your dashboard and continue today's video tasks." switchText="New here?" switchTo="/signup" switchLabel="Create account">
+    <AuthFrame title="Welcome Back" subtitle="" switchText="Don't have an account?" switchTo="/signup" switchLabel="Create Account">
       {error && <div className="alert">{error}</div>}
       {message && <div className="success">{message}</div>}
       {!showReset ? (
         <form onSubmit={submit} className="form" autoComplete="off" data-form-type="other">
-          <label>Email<input {...noAutofill} name="manual_login_email" type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></label>
-          <label>Password<input {...noAutofill} name="manual_login_passcode" type="password" required minLength="6" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /></label>
-          <button className="primary">Sign in</button>
-          <button type="button" className="link-button" onClick={() => setShowReset(true)}>Forgot password?</button>
+          <label>Email Address<input {...noAutofill} name="manual_login_email" type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></label>
+          <label>
+            <span className="label-row">Password<button type="button" className="forgot-inline" onClick={() => setShowReset(true)}>Forgot?</button></span>
+            <span className="password-field">
+              <input {...noAutofill} name="manual_login_passcode" type={showPassword ? 'text' : 'password'} required minLength="6" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+              <button type="button" aria-label={showPassword ? 'Hide password' : 'Show password'} onClick={() => setShowPassword((value) => !value)}>
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </span>
+          </label>
+          <button className="primary">Sign In</button>
         </form>
       ) : (
         <div className="form">

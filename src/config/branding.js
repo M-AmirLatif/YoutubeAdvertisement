@@ -1,10 +1,10 @@
 export const branding = {
-  appName: import.meta.env.VITE_APP_NAME || 'AdWatch',
-  shortName: import.meta.env.VITE_APP_SHORT_NAME || 'YT',
-  tagline: import.meta.env.VITE_APP_TAGLINE || 'USDT rewards',
-  authTagline: import.meta.env.VITE_APP_AUTH_TAGLINE || 'Earn by watching campaigns',
-  heroTitle: import.meta.env.VITE_APP_HERO_TITLE || 'YouTube advertisement task platform',
+  appName: import.meta.env.VITE_APP_NAME || 'AMS Smart Solution',
+  shortName: import.meta.env.VITE_APP_SHORT_NAME || 'AMS',
+  tagline: import.meta.env.VITE_APP_TAGLINE || 'Earn Smarter',
+  authTagline: import.meta.env.VITE_APP_AUTH_TAGLINE || 'Smart Global Solution',
+  heroTitle: import.meta.env.VITE_APP_HERO_TITLE || 'AMS Smart Solution',
   heroCopy:
     import.meta.env.VITE_APP_HERO_COPY ||
-    'Manage video tasks, referral earnings, deposits, withdrawals, and daily progress from one responsive dashboard.'
+    'Create your Tasker account to start earning.'
 };

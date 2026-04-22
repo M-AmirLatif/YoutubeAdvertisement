@@ -4,18 +4,14 @@ import { branding } from '../config/branding.js';
 export default function AuthFrame({ title, subtitle, switchText, switchTo, switchLabel, children }) {
   return (
     <div className="auth-page">
-      <section className="auth-hero">
-        <div className="brand large">
-          <div className="brand-mark">{branding.shortName}</div>
-          <div>
-            <strong>{branding.appName}</strong>
+      <section className={`auth-panel ${title ? 'login-panel' : 'signup-panel'}`}>
+        <div className="auth-brand">
+          <div className="auth-logo">
+            <strong>{branding.shortName}</strong>
             <span>{branding.authTagline}</span>
           </div>
+          <h1>{branding.appName}</h1>
         </div>
-        <h1>{branding.heroTitle}</h1>
-        <p>{branding.heroCopy}</p>
-      </section>
-      <section className="auth-panel">
         <h2>{title}</h2>
         <p>{subtitle}</p>
         {children}

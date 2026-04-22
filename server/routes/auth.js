@@ -30,6 +30,7 @@ function isValidEmail(email) {
 router.post('/register', authLimiter, async (req, res) => {
   try {
     const username = String(req.body.username || '').trim();
+    const phone = String(req.body.phone || '').trim();
     const email = String(req.body.email || '').trim().toLowerCase();
     const password = String(req.body.password || '');
     const referralCode = String(req.body.referralCode || '').trim().toUpperCase();
@@ -56,6 +57,7 @@ router.post('/register', authLimiter, async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 12);
     const user = await User.create({
       username,
+      phone,
       email,
       passwordHash,
       referralCode: makeReferralCode(username),

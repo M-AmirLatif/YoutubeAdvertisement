@@ -47,9 +47,10 @@ router.get('/dashboard', requireAuth, async (req, res) => {
 });
 
 router.put('/profile', requireAuth, async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, phone, email, password } = req.body;
   const updates = {};
   if (username) updates.username = username;
+  if (phone !== undefined) updates.phone = String(phone).trim();
   if (email) updates.email = email.toLowerCase();
   if (password) {
     if (password.length < 6) return res.status(400).json({ message: 'Password must be at least 6 characters.' });
