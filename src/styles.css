@@ -220,11 +220,11 @@ main { padding: 42px 62px; overflow: hidden; }
 .profile-avatar { width: 150px; height: 150px; border-radius: 50%; border: 4px solid rgba(255,255,255,.45); display: grid; place-items: center; color: rgba(255,255,255,.92); }
 .profile-hero h2 { margin: 0; font-size: 34px; }
 .profile-hero span { min-width: 240px; border-radius: 999px; background: white; color: #101828; padding: 8px 20px; font-weight: 900; }
-.profile-details { padding: 36px; display: grid; gap: 0; }
-.profile-details div { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; padding: 18px 0; border-bottom: 1px solid var(--line); font-size: 20px; }
+.profile-details { padding: 36px; display: grid; gap: 0; min-width: 0; }
+.profile-details div { display: grid; grid-template-columns: auto minmax(74px, .45fr) minmax(0, 1fr); gap: 16px; align-items: center; padding: 18px 0; border-bottom: 1px solid var(--line); font-size: 20px; min-width: 0; }
 .profile-details svg, .profile-details span { color: #667085; }
-.profile-details strong { color: #101828; }
-.active-pill { background: #147f45; color: white !important; border-radius: 8px; padding: 6px 12px; }
+.profile-details strong { color: #101828; min-width: 0; max-width: 100%; overflow-wrap: anywhere; text-align: right; }
+.active-pill { justify-self: end; background: #147f45; color: white !important; border-radius: 8px; padding: 6px 12px; white-space: nowrap; }
 .settings-stack { display: grid; gap: 34px; }
 .settings-card { padding: 36px; display: grid; gap: 22px; }
 .settings-card h2 { display: flex; align-items: center; gap: 14px; color: #101828; }
@@ -320,6 +320,8 @@ select:disabled, button:disabled { opacity: .55; cursor: not-allowed; }
   .stats-grid, .video-grid, .plans-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .dashboard-stats-grid, .history-cards { grid-template-columns: 1fr; }
   .dashboard-grid { grid-template-columns: 1fr; }
+  .funds-layout, .withdraw-layout, .profile-layout { grid-template-columns: 1fr; }
+  .team-stats { grid-template-columns: 1fr; }
   main { padding: 28px; }
   .topbar { flex-direction: column; margin-bottom: 32px; }
   .topbar-actions { padding-top: 0; flex-wrap: wrap; }
@@ -344,6 +346,8 @@ select:disabled, button:disabled { opacity: .55; cursor: not-allowed; }
   .stat-card { padding: 24px; }
   .stat-card strong { font-size: 34px; }
   .stat-card span { font-size: 20px; }
+  .profile-details { padding: 26px; }
+  .profile-details div { grid-template-columns: auto minmax(64px, .42fr) minmax(0, 1fr); gap: 12px; font-size: 18px; }
   .referral-copy-row { grid-template-columns: 1fr; }
   .referral-copy-row div, .referral-copy-row button { font-size: 18px; padding: 14px; }
   .invite-panel { padding: 28px; }
