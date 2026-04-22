@@ -12,6 +12,6 @@ export function extractYoutubeId(url) {
 }
 
 export function makeReferralCode(username) {
-  const prefix = username.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase() || 'USER';
-  return `${prefix}${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+  const number = Math.floor(10000 + Math.random() * 90000);
+  return `USER-${number}`;
 }

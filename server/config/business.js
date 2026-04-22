@@ -2,6 +2,8 @@ export const MIN_WITHDRAWAL_AMOUNT = Number(process.env.MIN_WITHDRAWAL_AMOUNT ||
 export const REFERRAL_LEVEL_1_BONUS = Number(process.env.REFERRAL_LEVEL_1_BONUS || process.env.REFERRAL_BONUS || 1);
 export const REFERRAL_LEVEL_2_BONUS = Number(process.env.REFERRAL_LEVEL_2_BONUS || 0.5);
 export const REFERRAL_BONUS = REFERRAL_LEVEL_1_BONUS;
+export const REFERRAL_LEVEL_1_RATE = Number(process.env.REFERRAL_LEVEL_1_RATE || 0.15);
+export const REFERRAL_LEVEL_2_RATE = Number(process.env.REFERRAL_LEVEL_2_RATE || 0.05);
 export const TASK_COMPLETION_PERCENT = 95;
 export const MIN_WATCH_SECONDS = Number(process.env.MIN_WATCH_SECONDS || 20);
 

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Copy } from 'lucide-react';
+import { CheckSquare, Copy, LineChart, ReceiptText, RefreshCcw, Share2, Wallet } from 'lucide-react';
 import { api } from '../api.js';
 import StatCard from '../components/StatCard.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -18,43 +18,48 @@ export default function Dashboard() {
   }, []);
 
   const stats = data?.stats || { completedToday: 0, totalCompleted: 0, dailyLimit: user?.activePlan?.dailyLimit || 5, progressPercent: 0 };
+  const planFeesPaid = (data?.transactions || [])
+    .filter((tx) => tx.type === 'deposit' && ['approved', 'paid'].includes(tx.status))
+    .reduce((total, tx) => total + Number(tx.amount || 0), 0);
 
   return (
-    <div className="page-stack">
+    <div className="page-stack dashboard-page">
       {error && <div className="alert">{error}</div>}
-      <section className="stats-grid">
-        <StatCard label="User balance" value={`$${(user?.balance || 0).toFixed(2)}`} hint="Available for withdrawal" />
-        <StatCard label="Today earnings" value={`$${(user?.todayEarnings || 0).toFixed(2)}`} hint="Updated after completed videos" tone="blue" />
-        <StatCard label="Total withdrawn" value={`$${(user?.totalWithdrawn || 0).toFixed(2)}`} hint="Lifetime paid requests" tone="orange" />
-        <StatCard label="Referral earnings" value={`$${(user?.referralEarnings || 0).toFixed(2)}`} hint="Invite commission" tone="purple" />
-        <StatCard label="Referral team" value={`${stats.directReferrals || 0}/${stats.levelTwoReferrals || 0}`} hint="Level 1 / Level 2 users" tone="blue" />
+      <section className="ams-stats-grid">
+        <StatCard label="Withdrawable Balance" value={`$${(user?.balance || 0).toFixed(4)}`} icon={Wallet} />
+        <StatCard label="Today's Earning" value={`$${(user?.todayEarnings || 0).toFixed(4)}`} tone="green" icon={LineChart} />
+        <StatCard label="Daily Tasks" value={`${stats.completedToday || 0} / ${stats.dailyLimit || 0}`} tone="yellow" icon={CheckSquare} />
       </section>
 
-      <section className="dashboard-grid">
-        <article className="panel progress-panel">
-          <div className="section-title">
-            <span>Daily task progress</span>
-            <strong>{stats.completedToday}/{stats.dailyLimit}</strong>
-          </div>
-          <div className="progress-ring" style={{ '--value': `${stats.progressPercent}%` }}>
-            <strong>{stats.progressPercent}%</strong>
-            <span>complete</span>
-          </div>
-          <div className="progress-track"><span style={{ width: `${stats.progressPercent}%` }} /></div>
-        </article>
-
-        <article className="panel referral-panel">
-          <div className="section-title">
-            <span>Referral link</span>
-            <button className="icon-button" onClick={() => navigator.clipboard.writeText(referralLink)} aria-label="Copy referral link"><Copy size={18} /></button>
-          </div>
-          <p className="muted">Invite members and earn from two levels: your direct referrals and the people they invite.</p>
-          <div className="copy-box">{referralLink}</div>
-          <div className="code-pill">{user?.referralCode}</div>
-        </article>
+      <section className="history-section">
+        <h2>History Overview</h2>
+        <div className="history-cards">
+          <StatCard label="Total Plan Fees Paid" value={`$${planFeesPaid.toFixed(2)}`} tone="gray" icon={ReceiptText} />
+          <StatCard label="Total Withdrawn" value={`$${(user?.totalWithdrawn || 0).toFixed(2)}`} tone="red" icon={RefreshCcw} />
+        </div>
       </section>
 
-      <section className="panel">
+      <div className="ad-strip">
+        <strong>$ADZILLA</strong>
+        <span>Remember his name</span>
+        <button>Buy Adzilla Memecoin Now</button>
+      </div>
+
+      <section className="invite-panel" id="invite">
+        <h2><Share2 size={30} fill="currentColor" />Invite & Earn</h2>
+        <p>Share your link with friends. Earn 15% from their earnings instantly.</p>
+        <div className="referral-summary">
+          <span>Referral Earnings: <strong>${(user?.referralEarnings || 0).toFixed(4)}</strong></span>
+          <span>Team: <strong>{stats.directReferrals || 0}</strong> direct / <strong>{stats.levelTwoReferrals || 0}</strong> level 2</span>
+        </div>
+        <label>Your Referral Link</label>
+        <div className="referral-copy-row">
+          <div>{referralLink}</div>
+          <button onClick={() => navigator.clipboard.writeText(referralLink)}><Copy size={18} />Copy Link</button>
+        </div>
+      </section>
+
+      <section className="panel dashboard-activity">
         <div className="section-title"><span>Recent activity</span></div>
         <div className="table-list">
           {(data?.transactions || []).map((tx) => (
