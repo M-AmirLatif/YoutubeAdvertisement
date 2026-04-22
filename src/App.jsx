@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import Layout from './components/Layout.jsx';
@@ -62,9 +63,34 @@ function AppRoutes() {
 }
 
 export default function App() {
+  const [copyToast, setCopyToast] = useState('');
+  const toastTimer = useRef(null);
+
+  useEffect(() => {
+    function showToast(event) {
+      const message = event.detail?.message || 'Copied';
+      setCopyToast(message);
+      window.clearTimeout(toastTimer.current);
+      toastTimer.current = window.setTimeout(() => setCopyToast(''), 1800);
+    }
+
+    function showNativeCopyToast() {
+      showToast({ detail: { message: 'Copied' } });
+    }
+
+    window.addEventListener('app:copied', showToast);
+    window.addEventListener('copy', showNativeCopyToast);
+    return () => {
+      window.removeEventListener('app:copied', showToast);
+      window.removeEventListener('copy', showNativeCopyToast);
+      window.clearTimeout(toastTimer.current);
+    };
+  }, []);
+
   return (
     <AuthProvider>
       <AppRoutes />
+      {copyToast && <div className="copy-toast">{copyToast}</div>}
     </AuthProvider>
   );
 }

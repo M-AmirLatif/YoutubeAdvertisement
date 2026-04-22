@@ -3,6 +3,7 @@ import { CheckSquare, Copy, LineChart, ReceiptText, RefreshCcw, Share2, Wallet }
 import { api } from '../api.js';
 import StatCard from '../components/StatCard.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
+import { copyText } from '../utils/clipboard.js';
 
 export default function Dashboard() {
   const { user, setUser } = useAuth();
@@ -49,7 +50,7 @@ export default function Dashboard() {
         <label>Your Referral Link</label>
         <div className="referral-copy-row">
           <div>{referralLink}</div>
-          <button onClick={() => navigator.clipboard.writeText(referralLink)}><Copy size={18} />Copy Link</button>
+          <button onClick={() => copyText(referralLink, 'Referral link copied')}><Copy size={18} />Copy Link</button>
         </div>
       </section>
 

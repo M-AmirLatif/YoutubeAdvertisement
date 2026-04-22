@@ -90,16 +90,18 @@ router.put('/:id', requireAuth, requireAdmin, async (req, res) => {
 });
 
 router.delete('/:id', requireAuth, requireAdmin, async (req, res) => {
-  const video = await Video.findByIdAndUpdate(req.params.id, { isActive: false }, { returnDocument: 'after' });
+  const video = await Video.findById(req.params.id);
   if (!video) return res.status(404).json({ message: 'Video not found.' });
+  const progressResult = await Progress.deleteMany({ video: video._id });
+  await Video.deleteOne({ _id: video._id });
   await AuditLog.create({
     actor: req.user._id,
-    action: 'video.archive',
+    action: 'video.delete',
     targetType: 'Video',
     targetId: video._id,
-    details: { title: video.title }
+    details: { title: video.title, youtubeUrl: video.youtubeUrl, deletedProgress: progressResult.deletedCount || 0 }
   });
-  res.json({ video });
+  res.json({ message: 'Video deleted.', video, deletedProgress: progressResult.deletedCount || 0 });
 });
 
 export default router;

@@ -53,12 +53,12 @@ export default function VideosAdmin() {
   }
 
   async function archive(video) {
-    if (!window.confirm(`Remove "${video.title}" from user tasks? History will stay saved for admin review.`)) return;
+    if (!window.confirm(`Permanently remove "${video.title}" from videos, user tasks, and task history?`)) return;
     setError('');
     setMessage('');
     try {
       await api(`/videos/${video._id}`, { method: 'DELETE' });
-      setMessage('Task removed from user task list.');
+      setMessage('Task permanently removed.');
       load();
     } catch (err) {
       setError(err.message);

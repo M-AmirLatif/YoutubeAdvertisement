@@ -65,6 +65,9 @@ await expectStatus('regular user cannot create video', api('/videos', {
     durationSeconds: 20
   })
 }, userToken), 403);
+await expectStatus('regular user cannot delete video', api('/videos/000000000000000000000000', {
+  method: 'DELETE'
+}, userToken), 403);
 await expectStatus('regular user cannot list all transactions', api('/transactions/admin/all', {}, userToken), 403);
 await expectStatus('regular user cannot update transaction status', api('/transactions/admin/000000000000000000000000/status', {
   method: 'PUT',
@@ -72,5 +75,29 @@ await expectStatus('regular user cannot update transaction status', api('/transa
 }, userToken), 403);
 await expectStatus('admin can open admin dashboard', api('/admin/dashboard', {}, adminToken), 200);
 await expectStatus('admin can list all transactions', api('/transactions/admin/all', {}, adminToken), 200);
+
+const adminVideo = await api('/videos', {
+  method: 'POST',
+  body: JSON.stringify({
+    title: `Admin delete test ${stamp}`,
+    youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    reward: 0.1,
+    durationSeconds: 10
+  })
+}, adminToken);
+if (!adminVideo.response.ok) {
+  throw new Error(`Admin could not create video for delete test: ${adminVideo.data.message || adminVideo.response.status}`);
+}
+await expectStatus('admin can permanently delete video', api(`/videos/${adminVideo.data.video._id}`, {
+  method: 'DELETE'
+}, adminToken), 200);
+
+const adminVideosAfterDelete = await api('/videos/admin/all', {}, adminToken);
+if (!adminVideosAfterDelete.response.ok) {
+  throw new Error(`Admin could not list videos after delete: ${adminVideosAfterDelete.data.message || adminVideosAfterDelete.response.status}`);
+}
+if (adminVideosAfterDelete.data.videos.some((video) => video._id === adminVideo.data.video._id)) {
+  throw new Error('Deleted video still appears in admin video list');
+}
 
 console.log('Access control check passed');

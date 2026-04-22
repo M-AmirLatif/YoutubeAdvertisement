@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Copy } from 'lucide-react';
 import { api } from '../api.js';
+import { copyText } from '../utils/clipboard.js';
 
 export default function Deposit() {
   const [plans, setPlans] = useState([]);
@@ -85,7 +86,7 @@ export default function Deposit() {
         <div className="wallet-box">
           <span>Send USDT ({network.replace('USDT-', '')}) to:</span>
           <strong>{activeWallet || 'Wallet not configured'}</strong>
-          <button type="button" onClick={() => activeWallet && navigator.clipboard.writeText(activeWallet)}>
+          <button type="button" onClick={() => activeWallet && copyText(activeWallet, 'Wallet address copied')}>
             <Copy size={17} /> Copy Address
           </button>
         </div>
