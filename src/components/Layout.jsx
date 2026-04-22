@@ -76,7 +76,7 @@ export default function Layout() {
           </div>
           {isDashboard ? (
             <div className="topbar-actions">
-              <Link className="survey-button yellow" to="/tasks"><Clapperboard size={22} fill="currentColor" />Start Task</Link>
+              <Link className="survey-button primary-action" to="/tasks"><Clapperboard size={22} fill="currentColor" />Start Task</Link>
               <Link className="survey-button green" to="/tasks"><Crown size={18} fill="currentColor" />Free Video Tasks</Link>
             </div>
           ) : (

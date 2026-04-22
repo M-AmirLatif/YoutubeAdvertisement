@@ -28,7 +28,7 @@ export default function Dashboard() {
       <section className="dashboard-stats-grid">
         <StatCard label="Withdrawable Balance" value={`$${(user?.balance || 0).toFixed(4)}`} icon={Wallet} />
         <StatCard label="Today's Earning" value={`$${(user?.todayEarnings || 0).toFixed(4)}`} tone="green" icon={LineChart} />
-        <StatCard label="Daily Tasks" value={`${stats.completedToday || 0} / ${stats.dailyLimit || 0}`} tone="yellow" icon={CheckSquare} />
+        <StatCard label="Daily Tasks" value={`${stats.completedToday || 0} / ${stats.dailyLimit || 0}`} tone="cyan" icon={CheckSquare} />
       </section>
 
       <section className="history-section">
