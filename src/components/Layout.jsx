@@ -14,7 +14,7 @@ const navItems = [
 
 const adminItems = [
   { to: '/admin', label: 'Admin', icon: Gauge },
-  { to: '/admin/videos', label: 'Video Links', icon: Clapperboard },
+  { to: '/admin/videos', label: 'Tasks / Videos', icon: Clapperboard },
   { to: '/admin/users', label: 'Users', icon: UsersRound },
   { to: '/admin/transactions', label: 'Requests', icon: WalletCards },
   { to: '/admin/task-history', label: 'Task History', icon: ClipboardList },

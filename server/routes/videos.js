@@ -7,6 +7,45 @@ import { extractYoutubeId } from '../utils/youtube.js';
 
 const router = express.Router();
 
+function normalizeVideoPayload(body, partial = false) {
+  const updates = {};
+  const errors = [];
+
+  if (!partial || Object.prototype.hasOwnProperty.call(body, 'title')) {
+    const title = String(body.title || '').trim();
+    if (!title) errors.push('Task title is required.');
+    else updates.title = title;
+  }
+
+  if (!partial || Object.prototype.hasOwnProperty.call(body, 'youtubeUrl')) {
+    const youtubeUrl = String(body.youtubeUrl || '').trim();
+    const youtubeId = extractYoutubeId(youtubeUrl);
+    if (!youtubeId) errors.push('A valid YouTube URL is required.');
+    else {
+      updates.youtubeUrl = youtubeUrl;
+      updates.youtubeId = youtubeId;
+    }
+  }
+
+  if (!partial || Object.prototype.hasOwnProperty.call(body, 'reward')) {
+    const reward = Number(body.reward);
+    if (!Number.isFinite(reward) || reward < 0) errors.push('Reward must be zero or greater.');
+    else updates.reward = reward;
+  }
+
+  if (!partial || Object.prototype.hasOwnProperty.call(body, 'durationSeconds')) {
+    const durationSeconds = Number(body.durationSeconds);
+    if (!Number.isFinite(durationSeconds) || durationSeconds < 1) errors.push('Duration must be at least 1 second.');
+    else updates.durationSeconds = Math.round(durationSeconds);
+  }
+
+  if (Object.prototype.hasOwnProperty.call(body, 'isActive')) {
+    updates.isActive = Boolean(body.isActive);
+  }
+
+  return { updates, errors };
+}
+
 router.get('/', requireAuth, async (req, res) => {
   const videos = await Video.find({ isActive: true }).sort({ createdAt: -1 });
   const progress = await Progress.find({ user: req.user._id });
@@ -19,24 +58,25 @@ router.get('/admin/all', requireAuth, requireAdmin, async (_req, res) => {
 });
 
 router.post('/', requireAuth, requireAdmin, async (req, res) => {
-  const { title, youtubeUrl, reward, durationSeconds } = req.body;
-  const youtubeId = extractYoutubeId(youtubeUrl || '');
-  if (!title || !youtubeId) return res.status(400).json({ message: 'Valid title and YouTube URL are required.' });
+  const { updates, errors } = normalizeVideoPayload(req.body);
+  if (errors.length) return res.status(400).json({ message: errors[0] });
 
-  const video = await Video.create({ title, youtubeUrl, youtubeId, reward, durationSeconds });
+  const video = await Video.create(updates);
   await AuditLog.create({
     actor: req.user._id,
     action: 'video.create',
     targetType: 'Video',
     targetId: video._id,
-    details: { title, youtubeUrl, reward, durationSeconds }
+    details: updates
   });
   res.status(201).json({ video });
 });
 
 router.put('/:id', requireAuth, requireAdmin, async (req, res) => {
-  const updates = { ...req.body };
-  if (updates.youtubeUrl) updates.youtubeId = extractYoutubeId(updates.youtubeUrl);
+  const { updates, errors } = normalizeVideoPayload(req.body, true);
+  if (errors.length) return res.status(400).json({ message: errors[0] });
+  if (!Object.keys(updates).length) return res.status(400).json({ message: 'No valid task changes were provided.' });
+
   const video = await Video.findByIdAndUpdate(req.params.id, updates, { returnDocument: 'after' });
   if (!video) return res.status(404).json({ message: 'Video not found.' });
   await AuditLog.create({
@@ -54,7 +94,7 @@ router.delete('/:id', requireAuth, requireAdmin, async (req, res) => {
   if (!video) return res.status(404).json({ message: 'Video not found.' });
   await AuditLog.create({
     actor: req.user._id,
-    action: 'video.deactivate',
+    action: 'video.archive',
     targetType: 'Video',
     targetId: video._id,
     details: { title: video.title }
