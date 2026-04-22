@@ -85,12 +85,14 @@ function VideoTask({ video, progress, onComplete }) {
 export default function Tasks() {
   const [videos, setVideos] = useState([]);
   const [progressByVideo, setProgressByVideo] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     api('/videos').then(({ videos, progress }) => {
       setVideos(videos);
       setProgressByVideo(Object.fromEntries(progress.map((item) => [item.video, item])));
-    });
+    }).catch((err) => setError(err.message)).finally(() => setLoading(false));
   }, []);
 
   function handleComplete(videoId, progress) {
@@ -101,13 +103,15 @@ export default function Tasks() {
     <div className="page-stack">
       <section className="panel page-heading">
         <h2>Video tasks</h2>
-        <p>Watch each embedded campaign until completion. Rewards are recorded automatically when the video reaches the end.</p>
+        <p>Keep the video playing until it finishes. Rewards are paid once per video after the minimum watch time and daily plan limit checks pass.</p>
       </section>
+      {error && <div className="alert">{error}</div>}
       <section className="video-grid">
+        {loading && <div className="empty-state">Loading active video tasks...</div>}
         {videos.map((video) => (
           <VideoTask key={video._id} video={video} progress={progressByVideo[video._id]} onComplete={handleComplete} />
         ))}
-        {!videos.length && <div className="empty-state">No active YouTube links yet. Add one from Video Links.</div>}
+        {!loading && !videos.length && <div className="empty-state">No active video tasks are available right now.</div>}
       </section>
     </div>
   );

@@ -32,6 +32,8 @@ Run this checklist before handing the platform to a client.
 - Admin can pause/reactivate a task.
 - Admin can suspend/unsuspend a user.
 - Admin cannot alter protected owner account unless logged in as owner.
+- Admin dashboard shows risk signals when more than one user completes tasks from the same IP.
+- Admin user list shows completed tasks and pending withdrawal totals.
 
 ## Deposit Flow
 

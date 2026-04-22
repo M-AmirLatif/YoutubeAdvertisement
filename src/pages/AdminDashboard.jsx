@@ -21,6 +21,19 @@ export default function AdminDashboard() {
         <StatCard label="Completed tasks" value={stats?.completedTasks ?? 0} hint="All-time watched videos" tone="purple" />
         <StatCard label="Pending requests" value={(stats?.pendingDeposits ?? 0) + (stats?.pendingWithdrawals ?? 0)} hint="Deposits and withdrawals" tone="orange" />
       </section>
+      <section className="panel">
+        <div className="section-title"><span>Risk signals</span></div>
+        <div className="table-list">
+          {(stats?.repeatedIps || []).map((item) => (
+            <div className="table-row" key={item.ipAddress}>
+              <span>{item.ipAddress}</span>
+              <strong>{item.userCount} users</strong>
+              <em>{item.completions} completions</em>
+            </div>
+          ))}
+          {!stats?.repeatedIps?.length && <p className="muted">No repeated completion IPs detected yet.</p>}
+        </div>
+      </section>
     </div>
   );
 }

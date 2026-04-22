@@ -8,7 +8,9 @@ const progressSchema = new mongoose.Schema(
     percent: { type: Number, default: 0 },
     completed: { type: Boolean, default: false },
     completedAt: { type: Date, default: null },
-    rewardPaid: { type: Boolean, default: false }
+    rewardPaid: { type: Boolean, default: false },
+    ipAddress: { type: String, default: '' },
+    userAgent: { type: String, default: '' }
   },
   { timestamps: true }
 );

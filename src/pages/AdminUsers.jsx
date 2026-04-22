@@ -42,6 +42,14 @@ export default function AdminUsers() {
                 <strong>${user.referralEarnings.toFixed(2)}</strong>
                 <span>Referral</span>
               </div>
+              <div>
+                <strong>{user.completedTasks || 0}</strong>
+                <span>Tasks done</span>
+              </div>
+              <div>
+                <strong>${(user.pendingWithdrawalAmount || 0).toFixed(2)}</strong>
+                <span>Pending withdrawal</span>
+              </div>
               <div className="row-actions">
                 <select value={user.role} onChange={(e) => updateUser(user, { role: e.target.value })} disabled={user.isOwner}>
                   <option value="user">User</option>

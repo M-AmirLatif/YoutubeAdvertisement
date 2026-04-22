@@ -80,6 +80,12 @@ Open `Audit Logs` to see recent admin actions:
 - User role/suspension updates
 - Transaction approval/rejection/payment decisions
 
+## Risk Signals
+
+The admin dashboard includes a basic repeated-IP signal. If multiple users complete tasks from the same IP address, review those users before approving withdrawals.
+
+The user list also shows completed task counts and pending withdrawal totals to help admins review account activity quickly.
+
 ## Business Settings
 
 Business values are configured in `.env`:

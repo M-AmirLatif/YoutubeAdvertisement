@@ -7,19 +7,21 @@ import { useAuth } from '../context/AuthContext.jsx';
 export default function Dashboard() {
   const { user, setUser } = useAuth();
   const [data, setData] = useState(null);
+  const [error, setError] = useState('');
   const referralLink = useMemo(() => `${window.location.origin}/signup?ref=${user?.referralCode || ''}`, [user]);
 
   useEffect(() => {
     api('/users/dashboard').then((response) => {
       setData(response);
       setUser(response.user);
-    });
+    }).catch((err) => setError(err.message));
   }, []);
 
   const stats = data?.stats || { completedToday: 0, totalCompleted: 0, dailyLimit: user?.activePlan?.dailyLimit || 5, progressPercent: 0 };
 
   return (
     <div className="page-stack">
+      {error && <div className="alert">{error}</div>}
       <section className="stats-grid">
         <StatCard label="User balance" value={`$${(user?.balance || 0).toFixed(2)}`} hint="Available for withdrawal" />
         <StatCard label="Today earnings" value={`$${(user?.todayEarnings || 0).toFixed(2)}`} hint="Updated after completed videos" tone="blue" />

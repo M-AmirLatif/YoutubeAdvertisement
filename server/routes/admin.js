@@ -11,7 +11,7 @@ const router = express.Router();
 router.use(requireAuth, requireAdmin);
 
 router.get('/dashboard', async (_req, res) => {
-  const [users, admins, activeVideos, completedTasks, pendingDeposits, pendingWithdrawals, totals] = await Promise.all([
+  const [users, admins, activeVideos, completedTasks, pendingDeposits, pendingWithdrawals, totals, repeatedIps] = await Promise.all([
     User.countDocuments({ role: 'user' }),
     User.countDocuments({ role: 'admin' }),
     Video.countDocuments({ isActive: true }),
@@ -21,6 +21,14 @@ router.get('/dashboard', async (_req, res) => {
     Transaction.aggregate([
       { $match: { status: { $in: ['approved', 'paid'] } } },
       { $group: { _id: '$type', amount: { $sum: '$amount' } } }
+    ]),
+    Progress.aggregate([
+      { $match: { completed: true, ipAddress: { $ne: '' } } },
+      { $group: { _id: '$ipAddress', users: { $addToSet: '$user' }, completions: { $sum: 1 } } },
+      { $project: { ipAddress: '$_id', userCount: { $size: '$users' }, completions: 1, _id: 0 } },
+      { $match: { userCount: { $gte: 2 } } },
+      { $sort: { userCount: -1, completions: -1 } },
+      { $limit: 5 }
     ])
   ]);
 
@@ -32,6 +40,7 @@ router.get('/dashboard', async (_req, res) => {
       completedTasks,
       pendingDeposits,
       pendingWithdrawals,
+      repeatedIps,
       totals: Object.fromEntries(totals.map((item) => [item._id, item.amount]))
     }
   });
@@ -42,7 +51,27 @@ router.get('/users', async (_req, res) => {
     .select('-passwordHash')
     .sort({ createdAt: -1 })
     .limit(200);
-  res.json({ users });
+  const userIds = users.map((user) => user._id);
+  const [taskCounts, pendingWithdrawals] = await Promise.all([
+    Progress.aggregate([
+      { $match: { user: { $in: userIds }, completed: true } },
+      { $group: { _id: '$user', completedTasks: { $sum: 1 }, lastCompletedAt: { $max: '$completedAt' } } }
+    ]),
+    Transaction.aggregate([
+      { $match: { user: { $in: userIds }, type: 'withdrawal', status: 'pending' } },
+      { $group: { _id: '$user', pendingWithdrawalAmount: { $sum: '$amount' } } }
+    ])
+  ]);
+  const taskMap = new Map(taskCounts.map((item) => [String(item._id), item]));
+  const withdrawalMap = new Map(pendingWithdrawals.map((item) => [String(item._id), item]));
+  res.json({
+    users: users.map((user) => ({
+      ...user.toObject(),
+      completedTasks: taskMap.get(String(user._id))?.completedTasks || 0,
+      lastCompletedAt: taskMap.get(String(user._id))?.lastCompletedAt || null,
+      pendingWithdrawalAmount: withdrawalMap.get(String(user._id))?.pendingWithdrawalAmount || 0
+    }))
+  });
 });
 
 router.put('/users/:id', async (req, res) => {

@@ -33,6 +33,10 @@ router.post('/:videoId', requireAuth, rateLimit({ windowMs: 60_000, max: 120, ke
     { user: req.user._id, video: video._id },
     {
       $max: { watchedSeconds, percent },
+      $set: {
+        ipAddress: req.ip || '',
+        userAgent: req.get('user-agent') || ''
+      },
       ...(shouldComplete ? { completed: true, completedAt: existing?.completedAt || new Date() } : {})
     },
     { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }

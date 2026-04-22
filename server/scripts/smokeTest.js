@@ -38,6 +38,9 @@ async function run() {
   const adminToken = adminLogin.data.token;
   const adminDashboard = await request('/api/admin/dashboard', { token: adminToken });
   assert(adminDashboard.response.ok, 'Admin dashboard failed');
+  if (!Array.isArray(adminDashboard.data.stats.repeatedIps)) {
+    console.warn('Warning: admin dashboard risk signal field missing. Restart the backend to load the latest code.');
+  }
 
   const email = `smoke${Date.now()}@example.com`;
   const register = await request('/api/auth/register', {
@@ -66,6 +69,12 @@ async function run() {
 
   const videos = await request('/api/videos', { token: userToken });
   assert(videos.response.ok, 'User video list failed');
+
+  const plans = await request('/api/transactions/plans', { token: userToken });
+  assert(plans.response.ok, 'Plans endpoint failed');
+  if (!plans.data.depositWallets || typeof plans.data.depositWallets !== 'object') {
+    console.warn('Warning: network deposit wallets missing. Restart the backend to load the latest code.');
+  }
 
   console.log('Smoke test passed');
 }

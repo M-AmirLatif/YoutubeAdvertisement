@@ -121,7 +121,7 @@ main { padding: 26px; overflow: hidden; }
 .compact { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: end; }
 .compact .alert { grid-column: 1 / -1; }
 .admin-list { display: grid; gap: 12px; }
-.admin-row { display: grid; grid-template-columns: 1.5fr .7fr .7fr auto; align-items: center; gap: 14px; border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
+.admin-row { display: grid; grid-template-columns: 1.5fr .7fr .7fr .7fr .8fr auto; align-items: center; gap: 14px; border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
 .admin-row span { display: block; color: var(--muted); margin-top: 4px; overflow-wrap: anywhere; }
 select { border: 1px solid var(--line); border-radius: 8px; padding: 11px 12px; background: white; font: inherit; font-weight: 800; }
 select:disabled, button:disabled { opacity: .55; cursor: not-allowed; }

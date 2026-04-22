@@ -12,6 +12,7 @@ export default function Deposit() {
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     api('/transactions/plans').then(({ plans, minWithdrawal, depositWallet, depositWallets }) => {
@@ -19,7 +20,7 @@ export default function Deposit() {
       setMinWithdrawal(minWithdrawal);
       setDepositWallet(depositWallet);
       setDepositWallets(depositWallets || {});
-    });
+    }).catch((err) => setError(err.message)).finally(() => setLoading(false));
   }, []);
 
   async function deposit(plan) {
@@ -59,9 +60,10 @@ export default function Deposit() {
       {error && <div className="alert">{error}</div>}
       <section className="panel page-heading">
         <h2>Deposits and withdrawals</h2>
-        <p>Deposit requests require a transaction hash or payment proof. Minimum withdrawal is ${minWithdrawal.toFixed(2)}.</p>
+        <p>Select the correct USDT network, send funds to the matching platform wallet, then submit the transaction hash or proof for admin review. Minimum withdrawal is ${minWithdrawal.toFixed(2)}.</p>
       </section>
       <section className="plans-grid">
+        {loading && <div className="empty-state">Loading deposit plans...</div>}
         {plans.map((plan) => (
           <article key={plan.name} className="plan-card">
             <span>{plan.name}</span>
@@ -76,6 +78,7 @@ export default function Deposit() {
       <section className="panel">
         <div className="section-title"><span>USDT wallet</span></div>
         {(depositWallets[network] || depositWallet) && <div className="copy-box">Platform {network} deposit wallet: {depositWallets[network] || depositWallet}</div>}
+        {network === 'USDT-ERC20' && !depositWallets[network] && !depositWallet && <div className="alert">ERC20 deposits are not enabled. Choose TRC20 or BEP20.</div>}
         <div className="form compact">
           <label>Network
             <select value={network} onChange={(e) => setNetwork(e.target.value)}>
