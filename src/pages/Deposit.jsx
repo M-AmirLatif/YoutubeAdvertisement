@@ -13,6 +13,8 @@ export default function Deposit() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const enabledNetworks = Object.keys(depositWallets).filter((key) => depositWallets[key] || depositWallet);
+  const networkOptions = enabledNetworks.length ? enabledNetworks : ['USDT-TRC20', 'USDT-BEP20'];
 
   useEffect(() => {
     api('/transactions/plans').then(({ plans, minWithdrawal, depositWallet, depositWallets }) => {
@@ -78,13 +80,10 @@ export default function Deposit() {
       <section className="panel">
         <div className="section-title"><span>USDT wallet</span></div>
         {(depositWallets[network] || depositWallet) && <div className="copy-box">Platform {network} deposit wallet: {depositWallets[network] || depositWallet}</div>}
-        {network === 'USDT-ERC20' && !depositWallets[network] && !depositWallet && <div className="alert">ERC20 deposits are not enabled. Choose TRC20 or BEP20.</div>}
         <div className="form compact">
           <label>Network
             <select value={network} onChange={(e) => setNetwork(e.target.value)}>
-              <option value="USDT-TRC20">USDT-TRC20</option>
-              <option value="USDT-BEP20">USDT-BEP20</option>
-              <option value="USDT-ERC20">USDT-ERC20</option>
+              {networkOptions.map((item) => <option key={item} value={item}>{item}</option>)}
             </select>
           </label>
           <label>Transaction hash / proof<input value={proof} onChange={(e) => setProof(e.target.value)} placeholder="Required for deposit requests" /></label>
