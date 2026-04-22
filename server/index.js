@@ -19,10 +19,15 @@ const app = express();
 const port = process.env.PORT || 5000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const allowedOrigins = [
+const configuredOrigins = [
   process.env.CLIENT_URL,
   ...(process.env.CLIENT_URLS || '').split(',')
 ].filter(Boolean).map((origin) => origin.trim());
+const allowedOrigins = [
+  ...configuredOrigins,
+  `http://localhost:${port}`,
+  `http://127.0.0.1:${port}`
+];
 
 app.set('trust proxy', 1);
 app.use(cors({
@@ -60,10 +65,26 @@ app.use('/api', (_req, res) => {
 });
 
 const distPath = path.join(__dirname, '..', 'dist');
-if (fs.existsSync(path.join(distPath, 'index.html'))) {
-  app.use(express.static(distPath));
+const indexPath = path.join(distPath, 'index.html');
+if (fs.existsSync(indexPath)) {
+  app.use('/assets', express.static(path.join(distPath, 'assets'), {
+    immutable: true,
+    maxAge: '1y'
+  }));
+  app.use('/assets', (_req, res) => {
+    res.status(404).type('text/plain').send('Frontend asset not found. Rebuild the frontend and refresh the browser.');
+  });
+  app.use(express.static(distPath, {
+    index: false,
+    setHeaders(res, filePath) {
+      if (filePath.endsWith('.html')) {
+        res.setHeader('Cache-Control', 'no-store');
+      }
+    }
+  }));
   app.use((_req, res) => {
-    res.sendFile(path.join(distPath, 'index.html'));
+    res.setHeader('Cache-Control', 'no-store');
+    res.sendFile(indexPath);
   });
 } else {
   app.get('/', (_req, res) => {

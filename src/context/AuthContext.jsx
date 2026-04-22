@@ -14,9 +14,13 @@ export function AuthProvider({ children }) {
   }
 
   async function refreshUser() {
-    if (!getToken()) return;
+    if (!getToken()) {
+      setUser(null);
+      return null;
+    }
     const data = await api('/auth/me');
     setUser(data.user);
+    return data.user;
   }
 
   async function login(payload) {
@@ -37,7 +41,22 @@ export function AuthProvider({ children }) {
   }
 
   useEffect(() => {
-    refreshUser().catch(logout).finally(() => setLoading(false));
+    let active = true;
+
+    async function loadUser() {
+      try {
+        await refreshUser();
+      } catch {
+        logout();
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+
+    loadUser();
+    return () => {
+      active = false;
+    };
   }, []);
 
   const value = useMemo(() => ({ token, user, setUser, loading, login, signup, logout, refreshUser }), [token, user, loading]);
