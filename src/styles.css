@@ -95,6 +95,10 @@ main { padding: 26px; overflow: hidden; }
 .progress-track { height: 10px; background: #e8eef6; border-radius: 999px; overflow: hidden; }
 .progress-track span { display: block; height: 100%; background: linear-gradient(90deg, var(--green), var(--blue)); border-radius: inherit; }
 .copy-box { background: #f2f6fb; border: 1px dashed #bdcadb; color: #344054; padding: 13px; border-radius: 8px; overflow-wrap: anywhere; }
+.transaction-panel { border-left: 4px solid var(--green); }
+.payment-steps { display: grid; gap: 10px; margin-bottom: 16px; }
+.payment-steps div { display: grid; grid-template-columns: 32px 1fr; gap: 10px; align-items: start; color: var(--muted); }
+.payment-steps strong { width: 28px; height: 28px; display: grid; place-items: center; background: #ecfdf3; color: #027a48; border-radius: 8px; }
 .code-pill { margin-top: 14px; display: inline-flex; padding: 8px 12px; border-radius: 8px; background: #eef4ff; color: #175cd3; font-weight: 900; }
 .table-list { display: grid; gap: 10px; }
 .table-row { display: grid; grid-template-columns: 1fr auto auto auto auto; gap: 12px; align-items: center; padding: 13px; border: 1px solid var(--line); border-radius: 8px; }

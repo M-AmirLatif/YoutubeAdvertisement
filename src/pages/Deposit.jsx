@@ -10,6 +10,7 @@ export default function Deposit() {
   const [network, setNetwork] = useState('USDT-TRC20');
   const [proof, setProof] = useState('');
   const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [selectedPlan, setSelectedPlan] = useState(null);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
@@ -25,16 +26,19 @@ export default function Deposit() {
     }).catch((err) => setError(err.message)).finally(() => setLoading(false));
   }, []);
 
-  async function deposit(plan) {
+  async function deposit(event) {
+    event.preventDefault();
+    if (!selectedPlan) return;
     setMessage('');
     setError('');
     try {
       const response = await api('/transactions/deposit', {
         method: 'POST',
-        body: JSON.stringify({ planName: plan.name, amount: plan.price, walletAddress, network, proof })
+        body: JSON.stringify({ planName: selectedPlan.name, amount: selectedPlan.price, walletAddress, network, proof })
       });
       setMessage(`${response.plan.name} deposit request is pending admin review.`);
       setProof('');
+      setSelectedPlan(null);
     } catch (err) {
       setError(err.message);
     }
@@ -72,24 +76,42 @@ export default function Deposit() {
             <strong>${plan.price}</strong>
             <p>{plan.dailyLimit} daily videos</p>
             <p>${plan.rewardPerVideo.toFixed(2)} reward per video</p>
-            <button className="primary" onClick={() => deposit(plan)}>Choose plan</button>
+            <button className="primary" onClick={() => {
+              setSelectedPlan(plan);
+              setMessage('');
+              setError('');
+            }}>Choose plan</button>
           </article>
         ))}
       </section>
 
-      <section className="panel">
-        <div className="section-title"><span>USDT wallet</span></div>
-        {(depositWallets[network] || depositWallet) && <div className="copy-box">Platform {network} deposit wallet: {depositWallets[network] || depositWallet}</div>}
-        <div className="form compact">
-          <label>Network
-            <select value={network} onChange={(e) => setNetwork(e.target.value)}>
-              {networkOptions.map((item) => <option key={item} value={item}>{item}</option>)}
-            </select>
-          </label>
-          <label>Transaction hash / proof<input value={proof} onChange={(e) => setProof(e.target.value)} placeholder="Required for deposit requests" /></label>
-        </div>
-        <label className="wide-label">Wallet address<input value={walletAddress} onChange={(e) => setWalletAddress(e.target.value)} placeholder="TRC20 or BEP20 wallet address" /></label>
-      </section>
+      {selectedPlan && (
+        <section className="panel transaction-panel">
+          <div className="section-title">
+            <span>Plan payment</span>
+            <strong>{selectedPlan.name} - ${selectedPlan.price}</strong>
+          </div>
+          <div className="payment-steps">
+            <div><strong>1</strong><span>Select the same network you will use from your wallet or exchange.</span></div>
+            <div><strong>2</strong><span>Send exactly ${selectedPlan.price} USDT to the platform wallet shown below.</span></div>
+            <div><strong>3</strong><span>Paste the transaction hash or proof reference and submit for admin verification.</span></div>
+          </div>
+          {(depositWallets[network] || depositWallet) && <div className="copy-box">Platform {network} deposit wallet: {depositWallets[network] || depositWallet}</div>}
+          <form className="form compact" onSubmit={deposit}>
+            <label>Network
+              <select value={network} onChange={(e) => setNetwork(e.target.value)}>
+                {networkOptions.map((item) => <option key={item} value={item}>{item}</option>)}
+              </select>
+            </label>
+            <label>Transaction hash / proof<input required value={proof} onChange={(e) => setProof(e.target.value)} placeholder="Paste USDT transaction hash" /></label>
+            <label>Your withdrawal wallet<input value={walletAddress} onChange={(e) => setWalletAddress(e.target.value)} placeholder="Optional wallet for future withdrawals" /></label>
+            <div className="row-actions">
+              <button className="primary">Submit for verification</button>
+              <button type="button" className="secondary" onClick={() => setSelectedPlan(null)}>Cancel</button>
+            </div>
+          </form>
+        </section>
+      )}
 
       <section className="panel">
         <div className="section-title"><span>Withdraw funds</span></div>
