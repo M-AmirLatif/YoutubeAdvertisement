@@ -223,7 +223,7 @@ main { padding: 42px 62px; overflow: hidden; }
 .profile-details { padding: 36px; display: grid; gap: 0; min-width: 0; }
 .profile-details div { display: grid; grid-template-columns: auto minmax(74px, .45fr) minmax(0, 1fr); gap: 16px; align-items: center; padding: 18px 0; border-bottom: 1px solid var(--line); font-size: 20px; min-width: 0; }
 .profile-details svg, .profile-details span { color: #667085; }
-.profile-details strong { color: #101828; min-width: 0; max-width: 100%; overflow-wrap: anywhere; text-align: right; }
+.profile-details strong { color: #101828; min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: right; }
 .active-pill { justify-self: end; background: #147f45; color: white !important; border-radius: 8px; padding: 6px 12px; white-space: nowrap; }
 .settings-stack { display: grid; gap: 34px; }
 .settings-card { padding: 36px; display: grid; gap: 22px; }
