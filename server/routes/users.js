@@ -8,11 +8,14 @@ import { requireAuth } from '../middleware/auth.js';
 const router = express.Router();
 
 router.get('/dashboard', requireAuth, async (req, res) => {
-  const [completedToday, totalCompleted, transactions, directReferrals, levelTwoReferrals] = await Promise.all([
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const [completedToday, totalCompleted, transactions, directReferrals, levelTwoReferrals, todaysEarnings] = await Promise.all([
     Progress.countDocuments({
       user: req.user._id,
       completed: true,
-      completedAt: { $gte: new Date(new Date().setHours(0, 0, 0, 0)) }
+      completedAt: { $gte: startOfDay }
     }),
     Progress.countDocuments({ user: req.user._id, completed: true }),
     Transaction.find({ user: req.user._id }).sort({ createdAt: -1 }).limit(8),
@@ -29,11 +32,25 @@ router.get('/dashboard', requireAuth, async (req, res) => {
       },
       { $project: { count: { $size: '$children' } } },
       { $group: { _id: null, total: { $sum: '$count' } } }
+    ]),
+    Transaction.aggregate([
+      {
+        $match: {
+          user: req.user._id,
+          type: { $in: ['earning', 'referral'] },
+          status: 'approved',
+          createdAt: { $gte: startOfDay }
+        }
+      },
+      { $group: { _id: null, total: { $sum: '$amount' } } }
     ])
   ]);
 
   res.json({
-    user: req.user,
+    user: {
+      ...req.user.toObject(),
+      todayEarnings: todaysEarnings[0]?.total || 0
+    },
     stats: {
       completedToday,
       totalCompleted,

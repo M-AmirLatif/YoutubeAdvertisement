@@ -129,4 +129,32 @@ if (dashboardAfterWithdrawal.user.totalWithdrawn !== 5) {
   throw new Error(`Withdrawal did not update totalWithdrawn exactly 5. Got ${dashboardAfterWithdrawal.user.totalWithdrawn}`);
 }
 
+const video = await requireOk('admin create reward video', api('/videos', {
+  method: 'POST',
+  body: JSON.stringify({
+    title: `90 percent reward test ${stamp}`,
+    youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    reward: 2,
+    durationSeconds: 100
+  })
+}, admin.token));
+
+await requireOk('90 percent progress pays reward', api(`/progress/${video.video._id}`, {
+  method: 'POST',
+  body: JSON.stringify({ watchedSeconds: 90, percent: 90, completed: false })
+}, user.token));
+
+await requireOk('duplicate progress does not double pay', api(`/progress/${video.video._id}`, {
+  method: 'POST',
+  body: JSON.stringify({ watchedSeconds: 100, percent: 100, completed: true })
+}, user.token));
+
+const dashboardAfterReward = await requireOk('dashboard after video reward', api('/users/dashboard', {}, user.token));
+if (dashboardAfterReward.user.balance !== 7) {
+  throw new Error(`90 percent video reward should pay exactly once. Balance is ${dashboardAfterReward.user.balance}`);
+}
+if (dashboardAfterReward.user.todayEarnings < 2) {
+  throw new Error(`Today earnings did not include video reward. Got ${dashboardAfterReward.user.todayEarnings}`);
+}
+
 console.log('Money flow check passed');

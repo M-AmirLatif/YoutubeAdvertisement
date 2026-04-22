@@ -178,7 +178,11 @@ router.put('/users/:id', async (req, res) => {
 
   const updates = {};
   if (['user', 'admin'].includes(role)) updates.role = role;
-  if (balance !== undefined && Number.isFinite(Number(balance))) updates.balance = Number(balance);
+  if (balance !== undefined && Number.isFinite(Number(balance))) {
+    const numericBalance = Number(balance);
+    if (numericBalance < 0) return res.status(400).json({ message: 'Balance cannot be negative.' });
+    updates.balance = numericBalance;
+  }
   if (typeof isSuspended === 'boolean') updates.isSuspended = isSuspended;
 
   const user = await User.findByIdAndUpdate(req.params.id, updates, { returnDocument: 'after' }).select('-passwordHash');

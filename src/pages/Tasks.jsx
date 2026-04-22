@@ -21,7 +21,7 @@ function VideoTask({ video, progress, onComplete }) {
   const intervalRef = useRef(null);
   const [percent, setPercent] = useState(progress?.percent || 0);
   const [error, setError] = useState('');
-  const completed = progress?.completed || percent >= 95;
+  const completed = progress?.completed || percent >= 90;
 
   useEffect(() => {
     let mounted = true;
@@ -40,7 +40,7 @@ function VideoTask({ video, progress, onComplete }) {
                 setPercent(nextPercent);
                 api(`/progress/${video._id}`, {
                   method: 'POST',
-                  body: JSON.stringify({ watchedSeconds: current, percent: nextPercent, completed: nextPercent >= 95 })
+                  body: JSON.stringify({ watchedSeconds: current, percent: nextPercent, completed: nextPercent >= 90 })
                 }).then(({ progress: next }) => {
                   if (next.completed) onComplete(video._id, next);
                 }).catch((err) => setError(err.message));
