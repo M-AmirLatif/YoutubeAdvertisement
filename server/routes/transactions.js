@@ -111,13 +111,8 @@ router.put('/admin/:id/status', requireAuth, requireAdmin, async (req, res) => {
   await transaction.save();
 
   if (transaction.type === 'deposit' && !creditedStatuses.includes(previousStatus) && creditedStatuses.includes(status)) {
-    await User.findByIdAndUpdate(transaction.user, { $inc: { balance: transaction.amount } });
     const plan = plans.find((item) => item.name === transaction.plan);
     if (plan) await User.findByIdAndUpdate(transaction.user, { activePlan: plan });
-  }
-
-  if (transaction.type === 'deposit' && creditedStatuses.includes(previousStatus) && !creditedStatuses.includes(status)) {
-    await User.findByIdAndUpdate(transaction.user, { $inc: { balance: -transaction.amount } });
   }
 
   if (transaction.type === 'withdrawal' && previousStatus !== 'rejected' && status === 'rejected') {

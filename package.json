@@ -13,7 +13,8 @@
     "seed": "node server/scripts/seed.js",
     "create-admin": "node server/scripts/createAdmin.js",
     "reset-password": "node server/scripts/resetPassword.js",
-    "smoke-test": "node server/scripts/smokeTest.js"
+    "smoke-test": "node server/scripts/smokeTest.js",
+    "access-check": "node server/scripts/accessControlCheck.js"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^5.1.1",
