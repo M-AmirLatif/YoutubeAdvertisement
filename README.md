@@ -64,7 +64,7 @@ Production target:
 
 Render uses `render.yaml`. Vercel uses `vercel.json`.
 
-Required Render variables: `MONGO_URI`, `JWT_SECRET`, `CLIENT_URL`, `CLIENT_URLS`, `MIN_WITHDRAWAL_AMOUNT`, `REFERRAL_BONUS`, `MIN_WATCH_SECONDS`, `DEPOSIT_WALLET_ADDRESS`.
+Required Render variables: `MONGO_URI`, `JWT_SECRET`, `CLIENT_URL`, `CLIENT_URLS`, `MIN_WITHDRAWAL_AMOUNT`, `REFERRAL_BONUS`, `MIN_WATCH_SECONDS`, `DEPOSIT_WALLET_ADDRESS`, `DEPOSIT_WALLET_TRC20`, `DEPOSIT_WALLET_BEP20`.
 
 Required Vercel variable: `VITE_API_URL`.
 

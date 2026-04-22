@@ -8,7 +8,16 @@ import { MIN_WITHDRAWAL_AMOUNT, plans } from '../config/business.js';
 const router = express.Router();
 
 router.get('/plans', requireAuth, (_req, res) => {
-  res.json({ plans, minWithdrawal: MIN_WITHDRAWAL_AMOUNT, depositWallet: process.env.DEPOSIT_WALLET_ADDRESS || '' });
+  res.json({
+    plans,
+    minWithdrawal: MIN_WITHDRAWAL_AMOUNT,
+    depositWallet: process.env.DEPOSIT_WALLET_ADDRESS || '',
+    depositWallets: {
+      'USDT-TRC20': process.env.DEPOSIT_WALLET_TRC20 || process.env.DEPOSIT_WALLET_ADDRESS || '',
+      'USDT-BEP20': process.env.DEPOSIT_WALLET_BEP20 || process.env.DEPOSIT_WALLET_ADDRESS || '',
+      'USDT-ERC20': process.env.DEPOSIT_WALLET_ERC20 || ''
+    }
+  });
 });
 
 router.get('/', requireAuth, async (req, res) => {

@@ -5,6 +5,7 @@ export default function Deposit() {
   const [plans, setPlans] = useState([]);
   const [minWithdrawal, setMinWithdrawal] = useState(5);
   const [depositWallet, setDepositWallet] = useState('');
+  const [depositWallets, setDepositWallets] = useState({});
   const [walletAddress, setWalletAddress] = useState('');
   const [network, setNetwork] = useState('USDT-TRC20');
   const [proof, setProof] = useState('');
@@ -13,10 +14,11 @@ export default function Deposit() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    api('/transactions/plans').then(({ plans, minWithdrawal, depositWallet }) => {
+    api('/transactions/plans').then(({ plans, minWithdrawal, depositWallet, depositWallets }) => {
       setPlans(plans);
       setMinWithdrawal(minWithdrawal);
       setDepositWallet(depositWallet);
+      setDepositWallets(depositWallets || {});
     });
   }, []);
 
@@ -73,7 +75,7 @@ export default function Deposit() {
 
       <section className="panel">
         <div className="section-title"><span>USDT wallet</span></div>
-        {depositWallet && <div className="copy-box">Platform deposit wallet: {depositWallet}</div>}
+        {(depositWallets[network] || depositWallet) && <div className="copy-box">Platform {network} deposit wallet: {depositWallets[network] || depositWallet}</div>}
         <div className="form compact">
           <label>Network
             <select value={network} onChange={(e) => setNetwork(e.target.value)}>
