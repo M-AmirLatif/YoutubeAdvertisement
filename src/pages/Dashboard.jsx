@@ -25,7 +25,7 @@ export default function Dashboard() {
   return (
     <div className="page-stack dashboard-page">
       {error && <div className="alert">{error}</div>}
-      <section className="ams-stats-grid">
+      <section className="dashboard-stats-grid">
         <StatCard label="Withdrawable Balance" value={`$${(user?.balance || 0).toFixed(4)}`} icon={Wallet} />
         <StatCard label="Today's Earning" value={`$${(user?.todayEarnings || 0).toFixed(4)}`} tone="green" icon={LineChart} />
         <StatCard label="Daily Tasks" value={`${stats.completedToday || 0} / ${stats.dailyLimit || 0}`} tone="yellow" icon={CheckSquare} />
@@ -40,9 +40,9 @@ export default function Dashboard() {
       </section>
 
       <div className="ad-strip">
-        <strong>$ADZILLA</strong>
-        <span>Remember his name</span>
-        <button>Buy Adzilla Memecoin Now</button>
+        <strong>Video Campaigns</strong>
+        <span>Complete tasks and earn rewards</span>
+        <button>Start Watching</button>
       </div>
 
       <section className="invite-panel" id="invite">

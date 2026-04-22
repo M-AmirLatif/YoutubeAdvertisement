@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
-import { ClipboardList, Clapperboard, Crown, Gauge, Home, LogOut, ReceiptText, UserCog, UserRound, UsersRound, WalletCards } from 'lucide-react';
+import { ClipboardList, Clapperboard, Crown, Gauge, Home, LogOut, ReceiptText, UserCog, UsersRound, WalletCards } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { branding } from '../config/branding.js';
 
@@ -30,7 +30,7 @@ export default function Layout() {
     <div className="app-shell">
       <aside className="sidebar">
         <div className="sidebar-logo">
-          <div className="ams-logo-mark">
+          <div className="sidebar-logo-mark">
             <strong>{branding.shortName}</strong>
           </div>
           <span>{branding.authTagline}</span>
@@ -76,8 +76,8 @@ export default function Layout() {
           </div>
           {isDashboard ? (
             <div className="topbar-actions">
-              <Link className="survey-button yellow" to="/tasks"><Clapperboard size={22} fill="currentColor" />Start Survey</Link>
-              <Link className="survey-button green" to="/tasks"><Crown size={18} fill="currentColor" />Taskers Survey (Free)</Link>
+              <Link className="survey-button yellow" to="/tasks"><Clapperboard size={22} fill="currentColor" />Start Task</Link>
+              <Link className="survey-button green" to="/tasks"><Crown size={18} fill="currentColor" />Free Video Tasks</Link>
             </div>
           ) : (
             <div className="avatar">{(user?.username || 'U').slice(0, 1).toUpperCase()}</div>
