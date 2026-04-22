@@ -46,9 +46,15 @@ router.post('/:videoId', requireAuth, rateLimit({ windowMs: 60_000, max: 120, ke
     return res.status(429).json({ message: 'Daily task limit reached for your active plan.', progress });
   }
 
-  if (shouldComplete && !progress.rewardPaid) {
+  if (shouldComplete) {
+    const rewardClaim = await Progress.findOneAndUpdate(
+      { _id: progress._id, rewardPaid: { $ne: true } },
+      { $set: { rewardPaid: true } },
+      { returnDocument: 'after' }
+    );
+    if (!rewardClaim) return res.json({ progress });
     progress.rewardPaid = true;
-    await progress.save();
+
     await User.findByIdAndUpdate(req.user._id, {
       $inc: { balance: video.reward, todayEarnings: video.reward }
     });

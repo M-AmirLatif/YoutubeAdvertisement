@@ -20,6 +20,13 @@ export default function AdminTransactions() {
     load();
   }
 
+  function actionsFor(tx) {
+    if (tx.status !== 'pending') return [];
+    if (tx.type === 'deposit') return [{ status: 'approved', label: 'Approve' }, { status: 'rejected', label: 'Reject', danger: true }];
+    if (tx.type === 'withdrawal') return [{ status: 'paid', label: 'Mark paid' }, { status: 'rejected', label: 'Reject', danger: true }];
+    return [];
+  }
+
   const visible = transactions.filter((tx) => filter === 'all' || tx.type === filter || tx.status === filter);
 
   return (
@@ -49,9 +56,16 @@ export default function AdminTransactions() {
               </div>
               <div className="row-actions">
                 <input value={notes[tx._id] || ''} onChange={(e) => setNotes({ ...notes, [tx._id]: e.target.value })} placeholder="Admin note" />
-                <button className="secondary" onClick={() => setStatus(tx._id, 'approved')}>Approve</button>
-                <button className="secondary" onClick={() => setStatus(tx._id, 'paid')}>Paid</button>
-                <button className="danger" onClick={() => setStatus(tx._id, 'rejected')}>Reject</button>
+                {actionsFor(tx).map((action) => (
+                  <button
+                    key={action.status}
+                    className={action.danger ? 'danger' : 'secondary'}
+                    onClick={() => setStatus(tx._id, action.status)}
+                  >
+                    {action.label}
+                  </button>
+                ))}
+                {tx.status !== 'pending' && <span>Finalized</span>}
               </div>
             </article>
           ))}

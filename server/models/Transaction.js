@@ -17,4 +17,15 @@ const transactionSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+transactionSchema.index(
+  { type: 1, proof: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      type: 'deposit',
+      proof: { $type: 'string', $gt: '' }
+    }
+  }
+);
+
 export default mongoose.model('Transaction', transactionSchema);

@@ -38,21 +38,32 @@ router.get('/admin/all', requireAuth, requireAdmin, async (_req, res) => {
 });
 
 router.post('/deposit', requireAuth, async (req, res) => {
-  const { planName, amount, walletAddress, network, proof } = req.body;
+  const { planName, walletAddress, network, proof } = req.body;
   const plan = plans.find((item) => item.name === planName);
   if (!plan) return res.status(400).json({ message: 'Select a valid plan.' });
   if (plan.price > 0 && (!proof || String(proof).trim().length < 6)) {
     return res.status(400).json({ message: 'Enter a transaction hash or payment proof reference.' });
   }
+  const proofValue = String(proof || '').trim();
+  if (proofValue) {
+    const duplicate = await Transaction.findOne({
+      type: 'deposit',
+      proof: proofValue,
+      status: { $ne: 'rejected' }
+    });
+    if (duplicate) {
+      return res.status(409).json({ message: 'This transaction hash/proof has already been submitted.' });
+    }
+  }
 
   const transaction = await Transaction.create({
     user: req.user._id,
     type: 'deposit',
-    amount: Number(amount || plan.price),
+    amount: plan.price,
     plan: plan.name,
     walletAddress,
     network,
-    proof: String(proof || '').trim(),
+    proof: proofValue,
     status: plan.price > 0 ? 'pending' : 'approved',
     notes: plan.price > 0 ? 'USDT deposit request' : 'Free plan activated'
   });
@@ -74,21 +85,30 @@ router.post('/withdraw', requireAuth, async (req, res) => {
   if (!walletAddress || String(walletAddress).trim().length < 10) {
     return res.status(400).json({ message: 'Enter a valid USDT wallet address.' });
   }
-  if (numericAmount > req.user.balance) return res.status(400).json({ message: 'Insufficient balance.' });
+  const user = await User.findOneAndUpdate(
+    { _id: req.user._id, balance: { $gte: numericAmount } },
+    { $inc: { balance: -numericAmount, totalWithdrawn: numericAmount } },
+    { new: true }
+  );
+  if (!user) return res.status(400).json({ message: 'Insufficient balance.' });
 
-  const transaction = await Transaction.create({
-    user: req.user._id,
-    type: 'withdrawal',
-    amount: numericAmount,
-    walletAddress: String(walletAddress).trim(),
-    network,
-    status: 'pending',
-    notes: 'USDT withdrawal request'
-  });
-
-  await User.findByIdAndUpdate(req.user._id, {
-    $inc: { balance: -numericAmount, totalWithdrawn: numericAmount }
-  });
+  let transaction;
+  try {
+    transaction = await Transaction.create({
+      user: req.user._id,
+      type: 'withdrawal',
+      amount: numericAmount,
+      walletAddress: String(walletAddress).trim(),
+      network,
+      status: 'pending',
+      notes: 'USDT withdrawal request'
+    });
+  } catch (error) {
+    await User.findByIdAndUpdate(req.user._id, {
+      $inc: { balance: numericAmount, totalWithdrawn: -numericAmount }
+    });
+    throw error;
+  }
 
   res.status(201).json({ transaction });
 });
@@ -103,6 +123,16 @@ router.put('/admin/:id/status', requireAuth, requireAdmin, async (req, res) => {
   if (!transaction) return res.status(404).json({ message: 'Transaction not found.' });
 
   const previousStatus = transaction.status;
+  const finalForType = transaction.type === 'deposit' ? ['approved', 'rejected'] : ['paid', 'rejected'];
+  if (finalForType.includes(previousStatus)) {
+    return res.status(400).json({ message: `This ${transaction.type} request is already ${previousStatus}.` });
+  }
+  if (transaction.type === 'deposit' && !['approved', 'rejected'].includes(status)) {
+    return res.status(400).json({ message: 'Deposits can only be approved or rejected.' });
+  }
+  if (transaction.type === 'withdrawal' && !['paid', 'rejected'].includes(status)) {
+    return res.status(400).json({ message: 'Withdrawals can only be marked paid or rejected.' });
+  }
   const creditedStatuses = ['approved', 'paid'];
   transaction.status = status;
   transaction.reviewedBy = req.user._id;
