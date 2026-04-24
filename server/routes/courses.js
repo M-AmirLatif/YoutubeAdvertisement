@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.get('/', requireAuth, async (req, res) => {
   try {
-    const courses = await Course.find().sort({ order: 1, createdAt: -1 });
+    const courses = await Course.find().sort({ createdAt: -1 });
     res.json(courses);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -20,7 +20,7 @@ router.post('/', requireAuth, requireAdmin, async (req, res) => {
       description: String(req.body.description || '').trim(),
       videoUrl: String(req.body.videoUrl || '').trim(),
       channelUrl: String(req.body.channelUrl || '').trim(),
-      order: Number(req.body.order) || 0
+      driveUrl: String(req.body.driveUrl || '').trim()
     });
     res.status(201).json(course);
   } catch (error) {
@@ -37,7 +37,7 @@ router.put('/:id', requireAuth, requireAdmin, async (req, res) => {
         description: String(req.body.description || '').trim(),
         videoUrl: String(req.body.videoUrl || '').trim(),
         channelUrl: String(req.body.channelUrl || '').trim(),
-        order: Number(req.body.order) || 0
+        driveUrl: String(req.body.driveUrl || '').trim()
       },
       { new: true }
     );

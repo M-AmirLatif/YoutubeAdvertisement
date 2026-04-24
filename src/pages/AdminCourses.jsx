@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api.js';
 
-const emptyForm = { title: '', description: '', videoUrl: '', channelUrl: '', order: 0 };
+const emptyForm = { title: '', description: '', videoUrl: '', channelUrl: '', driveUrl: '' };
 
 export default function AdminCourses() {
   const [courses, setCourses] = useState([]);
@@ -12,7 +12,7 @@ export default function AdminCourses() {
 
   async function load() {
     try {
-      const data = await api.courses.list();
+      const data = await api('/courses');
       setCourses(data);
     } catch (err) {
       setError(err.message);
@@ -29,10 +29,10 @@ export default function AdminCourses() {
     setMessage('');
     try {
       if (editingId) {
-        await api.courses.update(editingId, form);
+        await api(`/courses/${editingId}`, { method: 'PUT', body: JSON.stringify(form) });
         setMessage('Course updated.');
       } else {
-        await api.courses.create(form);
+        await api('/courses', { method: 'POST', body: JSON.stringify(form) });
         setMessage('Course added.');
       }
       setForm(emptyForm);
@@ -52,7 +52,7 @@ export default function AdminCourses() {
       description: course.description,
       videoUrl: course.videoUrl,
       channelUrl: course.channelUrl,
-      order: course.order
+      driveUrl: course.driveUrl
     });
   }
 
@@ -61,7 +61,7 @@ export default function AdminCourses() {
     setError('');
     setMessage('');
     try {
-      await api.courses.delete(course._id);
+      await api(`/courses/${course._id}`, { method: 'DELETE' });
       setMessage('Course removed.');
       load();
     } catch (err) {
@@ -88,9 +88,9 @@ export default function AdminCourses() {
           {message && <div className="success">{message}</div>}
           <label>Title<input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></label>
           <label className="wide-label">Description<input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></label>
-          <label>YouTube Embed URL<input required value={form.videoUrl} onChange={(e) => setForm({ ...form, videoUrl: e.target.value })} placeholder="https://www.youtube.com/watch?v=..." /></label>
-          <label>YouTube Channel URL<input value={form.channelUrl} onChange={(e) => setForm({ ...form, channelUrl: e.target.value })} placeholder="https://youtube.com/@Channel" /></label>
-          <label>Order (Sorting)<input type="number" value={form.order} onChange={(e) => setForm({ ...form, order: Number(e.target.value) })} /></label>
+          <label>YouTube Video Link<input required value={form.videoUrl} onChange={(e) => setForm({ ...form, videoUrl: e.target.value })} placeholder="https://youtube.com/watch?v=..." /></label>
+          <label>YouTube Channel Link<input value={form.channelUrl} onChange={(e) => setForm({ ...form, channelUrl: e.target.value })} placeholder="https://youtube.com/@Channel" /></label>
+          <label>Google Drive Link<input value={form.driveUrl} onChange={(e) => setForm({ ...form, driveUrl: e.target.value })} placeholder="https://drive.google.com/..." /></label>
           <button className="primary">{editingId ? 'Save Course' : 'Add Course'}</button>
           {editingId && <button className="secondary" type="button" onClick={resetForm}>Cancel</button>}
         </form>
@@ -105,7 +105,7 @@ export default function AdminCourses() {
                 <span>{course.videoUrl}</span>
               </div>
               <div>
-                <strong>Order: {course.order}</strong>
+                {course.driveUrl && <strong>Drive: {course.driveUrl}</strong>}
                 <span>{course.description}</span>
               </div>
               <div className="row-actions">

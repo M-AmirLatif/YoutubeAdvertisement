@@ -5,7 +5,7 @@ const courseSchema = new mongoose.Schema({
   description: { type: String, default: '' },
   videoUrl: { type: String, required: true },
   channelUrl: { type: String, default: '' },
-  order: { type: Number, default: 0 },
+  driveUrl: { type: String, default: '' },
   createdAt: { type: Date, default: Date.now }
 });
 

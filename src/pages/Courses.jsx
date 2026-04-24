@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BookOpen, ExternalLink, Youtube } from 'lucide-react';
+import { BookOpen, ExternalLink, Youtube, FileArchive } from 'lucide-react';
 import { api } from '../api.js';
 
 function getEmbedUrl(url) {
@@ -19,7 +19,7 @@ export default function Courses() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    api.courses.list()
+    api('/courses')
       .then(setCourses)
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
@@ -60,6 +60,11 @@ export default function Courses() {
                   {course.channelUrl && (
                     <a href={course.channelUrl} target="_blank" rel="noopener noreferrer" className="danger" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', padding: '8px 12px', background: '#dc2626', color: 'white', border: 'none' }}>
                       <Youtube size={14} /> Subscribe
+                    </a>
+                  )}
+                  {course.driveUrl && (
+                    <a href={course.driveUrl} target="_blank" rel="noopener noreferrer" className="secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', padding: '8px 12px', background: 'rgba(16, 185, 129, 0.1)', color: '#34d399', borderColor: 'rgba(16, 185, 129, 0.2)' }}>
+                      <FileArchive size={14} /> Open Google Drive
                     </a>
                   )}
                 </div>
