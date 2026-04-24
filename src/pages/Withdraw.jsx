@@ -76,12 +76,14 @@ export default function Withdraw() {
       <section>
         <h2 className="sub-title">Recent Requests</h2>
         <div className="request-table">
-          <div className="request-row header"><strong>Date</strong><strong>Amount</strong><strong>Status</strong></div>
+          <div className="request-row header">
+            <strong>Date</strong><strong>Amount</strong><strong>Status</strong>
+          </div>
           {transactions.slice(0, 8).map((tx) => (
             <div className="request-row" key={tx._id}>
               <span>{new Date(tx.createdAt).toLocaleDateString()}</span>
               <span>${Number(tx.amount).toFixed(2)}</span>
-              <span>{tx.status}</span>
+              <span style={{ textTransform: 'capitalize', fontWeight: 'bold', color: tx.status === 'rejected' ? '#f87171' : 'inherit' }}>{tx.status}</span>
             </div>
           ))}
           {!transactions.length && <p>No withdrawals yet.</p>}

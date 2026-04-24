@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { CheckSquare, Copy, LineChart, ReceiptText, RefreshCcw, Share2, Wallet } from 'lucide-react';
+import { CheckSquare, Copy, LineChart, ReceiptText, RefreshCcw, Share2, Wallet, Trophy } from 'lucide-react';
 import { api } from '../api.js';
 import StatCard from '../components/StatCard.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -18,7 +18,7 @@ export default function Dashboard() {
     }).catch((err) => setError(err.message));
   }, []);
 
-  const stats = data?.stats || { completedToday: 0, totalCompleted: 0, dailyLimit: user?.activePlan?.dailyLimit || 5, progressPercent: 0 };
+  const stats = data?.stats || { completedToday: 0, totalCompleted: 0, dailyLimit: user?.activePlan?.dailyLimit || 5, progressPercent: 0, referralEarnings: 0 };
   const planFeesPaid = (data?.transactions || [])
     .filter((tx) => tx.type === 'deposit' && ['approved', 'paid'].includes(tx.status))
     .reduce((total, tx) => total + Number(tx.amount || 0), 0);
@@ -29,6 +29,7 @@ export default function Dashboard() {
       <section className="dashboard-stats-grid">
         <StatCard label="Withdrawable Balance" value={`$${(user?.balance || 0).toFixed(4)}`} icon={Wallet} />
         <StatCard label="Today's Earning" value={`$${(user?.todayEarnings || 0).toFixed(4)}`} tone="green" icon={LineChart} />
+        <StatCard label="Referral Rewards" value={`$${Number(stats.referralEarnings || user?.referralEarnings || 0).toFixed(4)}`} tone="purple" icon={Trophy} />
         <StatCard label="Daily Tasks" value={`${stats.completedToday || 0} / ${stats.dailyLimit || 0}`} tone="cyan" icon={CheckSquare} />
       </section>
 
@@ -42,9 +43,9 @@ export default function Dashboard() {
 
       <section className="invite-panel" id="invite">
         <h2><Share2 size={30} fill="currentColor" />Invite & Earn</h2>
-        <p>Share your link with friends. Earn 15% from their earnings instantly.</p>
+        <p>Share your link with friends. Referral rewards are added automatically when they finish tasks.</p>
         <div className="referral-summary">
-          <span>Referral Earnings: <strong>${(user?.referralEarnings || 0).toFixed(4)}</strong></span>
+          <span>Referral Earnings: <strong>${Number(stats.referralEarnings || user?.referralEarnings || 0).toFixed(4)}</strong></span>
           <span>Team: <strong>{stats.directReferrals || 0}</strong> direct / <strong>{stats.levelTwoReferrals || 0}</strong> level 2</span>
         </div>
         <label>Your Referral Link</label>

@@ -66,6 +66,7 @@ export default function VideosAdmin() {
   }
 
   async function toggle(video) {
+    if (!window.confirm(`Are you sure you want to ${video.isActive ? 'pause' : 'activate'} the task "${video.title}"?`)) return;
     setError('');
     setMessage('');
     try {
@@ -86,8 +87,11 @@ export default function VideosAdmin() {
 
   return (
     <div className="page-stack">
+      <section className="panel page-heading">
+        <h2>Task & YouTube Link Management</h2>
+        <p>Add, edit, or archive tasks that users will watch for rewards.</p>
+      </section>
       <section className="panel">
-        <div className="section-title"><span>Admin task and YouTube link management</span></div>
         <form className="form compact" onSubmit={submit}>
           {error && <div className="alert">{error}</div>}
           {message && <div className="success">{message}</div>}
@@ -107,7 +111,7 @@ export default function VideosAdmin() {
       </section>
       <section className="panel">
         <div className="section-title"><span>All tasks</span></div>
-        <div className="table-list">
+        <div className="admin-list">
           {videos.map((video) => (
             <div key={video._id} className="video-admin-row">
               <div>

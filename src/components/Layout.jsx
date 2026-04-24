@@ -36,12 +36,6 @@ export default function Layout() {
           <span>{branding.authTagline}</span>
         </div>
         <nav>
-          {navItems.map((item) => (
-            <NavLink key={item.to} to={item.to} className={({ isActive }) => (isActive ? 'active' : '')}>
-              <item.icon size={19} />
-              {item.label}
-            </NavLink>
-          ))}
           {user?.role === 'admin' && (
             <>
               <div className="nav-divider">Admin panel</div>
@@ -51,8 +45,15 @@ export default function Layout() {
                   {item.label}
                 </NavLink>
               ))}
+              <div className="nav-divider">User</div>
             </>
           )}
+          {navItems.map((item) => (
+            <NavLink key={item.to} to={item.to} className={({ isActive }) => (isActive ? 'active' : '')}>
+              <item.icon size={19} />
+              {item.label}
+            </NavLink>
+          ))}
         </nav>
         <button className="logout" onClick={logout}>
           <LogOut size={18} />

@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "client": "vite --host 0.0.0.0",
@@ -28,12 +31,13 @@
     "lucide-react": "^0.561.0",
     "mongoose": "^9.0.1",
     "morgan": "^1.10.1",
+    "nodemailer": "^8.0.5",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-router-dom": "^7.10.1"
   },
   "devDependencies": {
-    "vite": "^7.3.0",
-    "nodemon": "^3.1.11"
+    "nodemon": "^3.1.11",
+    "vite": "^7.3.0"
   }
 }

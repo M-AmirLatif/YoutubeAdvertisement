@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api.js';
+import { copyText } from '../utils/clipboard.js';
 
 export default function AdminTransactions() {
   const [transactions, setTransactions] = useState([]);
   const [filter, setFilter] = useState('all');
-  const [notes, setNotes] = useState({});
 
   async function load() {
     const data = await api('/transactions/admin/all');
@@ -16,7 +16,7 @@ export default function AdminTransactions() {
   }, []);
 
   async function setStatus(id, status) {
-    await api(`/transactions/admin/${id}/status`, { method: 'PUT', body: JSON.stringify({ status, notes: notes[id] || '' }) });
+    await api(`/transactions/admin/${id}/status`, { method: 'PUT', body: JSON.stringify({ status }) });
     load();
   }
 
@@ -50,22 +50,34 @@ export default function AdminTransactions() {
               </div>
               <div>
                 <strong>{tx.status}</strong>
-                <span>{tx.plan || tx.walletAddress || 'No wallet provided'}</span>
-                {tx.proof && <span>Proof: {tx.proof}</span>}
-                {tx.network && <span>{tx.network}</span>}
+                <span>{tx.plan || 'No plan selected'}</span>
+                {tx.proof && <span>Payment reference: {tx.proof}</span>}
+                {tx.walletAddress && <span>Wallet: {tx.walletAddress}</span>}
+                {tx.network && <span>Network: {tx.network}</span>}
               </div>
               <div className="row-actions">
-                <input value={notes[tx._id] || ''} onChange={(e) => setNotes({ ...notes, [tx._id]: e.target.value })} placeholder="Admin note" />
-                {actionsFor(tx).map((action) => (
-                  <button
-                    key={action.status}
-                    className={action.danger ? 'danger' : 'secondary'}
-                    onClick={() => setStatus(tx._id, action.status)}
-                  >
-                    {action.label}
+                {tx.type === 'withdrawal' && tx.walletAddress && (
+                  <button className="secondary" type="button" onClick={() => copyText(tx.walletAddress, 'Withdrawal wallet copied')}>
+                    Copy wallet
                   </button>
-                ))}
-                {tx.status !== 'pending' && <span>Finalized</span>}
+                )}
+                {tx.status === 'pending' ? (
+                  <>
+                    {actionsFor(tx).map((action) => (
+                      <button
+                        key={action.status}
+                        className={action.danger ? 'danger' : 'secondary'}
+                        onClick={() => setStatus(tx._id, action.status)}
+                      >
+                        {action.label}
+                      </button>
+                    ))}
+                  </>
+                ) : (
+                  <>
+                    <span style={{ fontWeight: 'bold' }}>Finalized</span>
+                  </>
+                )}
               </div>
             </article>
           ))}

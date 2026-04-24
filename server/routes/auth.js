@@ -8,6 +8,7 @@ import { makeReferralCode } from '../utils/youtube.js';
 import { requireAuth } from '../middleware/auth.js';
 import { rateLimit } from '../middleware/rateLimit.js';
 import { REFERRAL_LEVEL_1_BONUS, REFERRAL_LEVEL_2_BONUS } from '../config/business.js';
+import { sendResetEmail } from '../utils/email.js';
 
 const router = express.Router();
 
@@ -130,11 +131,11 @@ router.post('/request-password-reset', authLimiter, async (req, res) => {
     user.passwordResetExpiresAt = new Date(Date.now() + 30 * 60_000);
     await user.save();
 
-    if (process.env.NODE_ENV === 'production') {
-      return res.json({ message: genericMessage });
-    }
+    // In a real production app, this would send an email via SendGrid/AWS SES.
+    // Since there's no email provider configured, we log it to the backend terminal.
+    await sendResetEmail(email, token);
 
-    res.json({ message: genericMessage, resetToken: token });
+    res.json({ message: genericMessage });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

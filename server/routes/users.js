@@ -11,7 +11,7 @@ router.get('/dashboard', requireAuth, async (req, res) => {
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
 
-  const [completedToday, totalCompleted, transactions, directReferrals, levelTwoReferrals, todaysEarnings] = await Promise.all([
+  const [completedToday, totalCompleted, transactions, directReferrals, levelTwoReferrals, todaysEarnings, referralEarnings] = await Promise.all([
     Progress.countDocuments({
       user: req.user._id,
       completed: true,
@@ -43,13 +43,24 @@ router.get('/dashboard', requireAuth, async (req, res) => {
         }
       },
       { $group: { _id: null, total: { $sum: '$amount' } } }
+    ]),
+    Transaction.aggregate([
+      {
+        $match: {
+          user: req.user._id,
+          type: 'referral',
+          status: 'approved'
+        }
+      },
+      { $group: { _id: null, total: { $sum: '$amount' } } }
     ])
   ]);
 
   res.json({
     user: {
       ...req.user.toObject(),
-      todayEarnings: todaysEarnings[0]?.total || 0
+      todayEarnings: todaysEarnings[0]?.total || 0,
+      referralEarnings: referralEarnings[0]?.total || req.user.referralEarnings || 0
     },
     stats: {
       completedToday,
@@ -57,7 +68,8 @@ router.get('/dashboard', requireAuth, async (req, res) => {
       directReferrals,
       levelTwoReferrals: levelTwoReferrals[0]?.total || 0,
       dailyLimit: req.user.activePlan.dailyLimit,
-      progressPercent: Math.min(100, Math.round((completedToday / req.user.activePlan.dailyLimit) * 100))
+      progressPercent: Math.min(100, Math.round((completedToday / req.user.activePlan.dailyLimit) * 100)),
+      referralEarnings: referralEarnings[0]?.total || req.user.referralEarnings || 0
     },
     transactions
   });

@@ -19,7 +19,7 @@ npm run create-admin -- owner@clientdomain.com strong-password-here Owner
 
 ## Add Video Tasks
 
-1. Open `Video Links`.
+1. Open `Tasks / Videos`.
 2. Enter a task title.
 3. Paste a normal YouTube URL.
 4. Set reward amount.
@@ -76,7 +76,7 @@ Local development also exposes reset tokens from the login screen. In production
 
 Open `Audit Logs` to see recent admin actions:
 
-- Video create/update/deactivate
+- Task create/update/remove
 - User role/suspension updates
 - Transaction approval/rejection/payment decisions
 

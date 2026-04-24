@@ -15,8 +15,28 @@ export default function AdminUsers() {
   }, []);
 
   async function updateUser(user, updates) {
+    if (updates.isSuspended !== undefined) {
+      const action = updates.isSuspended ? 'suspend' : 'unsuspend';
+      if (!window.confirm(`Are you sure you want to ${action} user "${user.username}"?`)) return;
+    }
     await api(`/admin/users/${user._id}`, { method: 'PUT', body: JSON.stringify(updates) });
     load();
+  }
+
+  async function forcePasswordReset(user) {
+    const newPass = window.prompt(`Enter a new password for ${user.username} (minimum 6 characters):`);
+    if (!newPass) return;
+    if (newPass.length < 6) return alert('Password must be at least 6 characters.');
+    
+    if (!window.confirm(`Are you absolutely sure you want to change the password for ${user.username} to: ${newPass}`)) return;
+    
+    try {
+      await api(`/admin/users/${user._id}`, { method: 'PUT', body: JSON.stringify({ password: newPass }) });
+      alert(`Success! The new password for ${user.username} is: ${newPass}`);
+      load();
+    } catch (err) {
+      alert(err.message);
+    }
   }
 
   return (
@@ -28,7 +48,7 @@ export default function AdminUsers() {
       {error && <div className="alert">{error}</div>}
       <section className="panel">
         <div className="admin-list">
-          {users.map((user) => (
+          {users.filter(user => user.role !== 'admin' && !user.isAdmin && !user.isOwner).map((user) => (
             <article className="admin-row" key={user._id}>
               <div>
                 <strong>{user.username}</strong>
@@ -51,10 +71,9 @@ export default function AdminUsers() {
                 <span>Pending withdrawal</span>
               </div>
               <div className="row-actions">
-                <select value={user.role} onChange={(e) => updateUser(user, { role: e.target.value })} disabled={user.isOwner}>
-                  <option value="user">User</option>
-                  <option value="admin">Admin</option>
-                </select>
+                <button className="secondary" disabled={user.isOwner} onClick={() => forcePasswordReset(user)}>
+                  Reset Password
+                </button>
                 <button className={user.isSuspended ? 'secondary' : 'danger'} disabled={user.isOwner} onClick={() => updateUser(user, { isSuspended: !user.isSuspended })}>
                   {user.isSuspended ? 'Unsuspend' : 'Suspend'}
                 </button>

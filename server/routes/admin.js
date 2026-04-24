@@ -1,4 +1,5 @@
 import express from 'express';
+import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
 import Video from '../models/Video.js';
 import Progress from '../models/Progress.js';
@@ -178,6 +179,9 @@ router.put('/users/:id', async (req, res) => {
 
   const updates = {};
   if (['user', 'admin'].includes(role)) updates.role = role;
+  if (req.body.password && String(req.body.password).length >= 6) {
+    updates.passwordHash = await bcrypt.hash(String(req.body.password), 12);
+  }
   if (balance !== undefined && Number.isFinite(Number(balance))) {
     const numericBalance = Number(balance);
     if (numericBalance < 0) return res.status(400).json({ message: 'Balance cannot be negative.' });

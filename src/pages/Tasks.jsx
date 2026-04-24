@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { CheckCircle2, PlayCircle } from 'lucide-react';
+import { CheckCircle2, PlayCircle, Maximize } from 'lucide-react';
 import { api } from '../api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 
@@ -20,9 +20,20 @@ function VideoTask({ video, progress, onComplete }) {
   const containerRef = useRef(null);
   const playerRef = useRef(null);
   const intervalRef = useRef(null);
+  const accumulatedRef = useRef(progress?.watchedSeconds || 0);
   const [percent, setPercent] = useState(progress?.percent || 0);
   const [error, setError] = useState('');
   const completed = progress?.completed || percent >= 90;
+
+  function toggleFullscreen() {
+    const frame = containerRef.current?.parentElement;
+    if (!frame) return;
+    if (!document.fullscreenElement) {
+      frame.requestFullscreen?.().catch(console.error);
+    } else {
+      document.exitFullscreen?.();
+    }
+  }
 
   useEffect(() => {
     let mounted = true;
@@ -30,28 +41,46 @@ function VideoTask({ video, progress, onComplete }) {
       if (!mounted || !containerRef.current) return;
       playerRef.current = new YT.Player(containerRef.current, {
         videoId: video.youtubeId,
-        playerVars: { rel: 0, modestbranding: 1 },
+        playerVars: { rel: 0, modestbranding: 1, origin: window.location.origin, controls: 0, disablekb: 1 },
         events: {
           onStateChange: (event) => {
             if (event.data === YT.PlayerState.PLAYING) {
               intervalRef.current = setInterval(() => {
+                accumulatedRef.current += 1;
                 const duration = playerRef.current.getDuration() || video.durationSeconds;
-                const current = playerRef.current.getCurrentTime() || 0;
-                const nextPercent = Math.min(100, Math.round((current / duration) * 100));
+                const nextPercent = Math.min(100, Math.round((accumulatedRef.current / duration) * 100));
+                
                 setPercent(nextPercent);
-                api(`/progress/${video._id}`, {
-                  method: 'POST',
-                  body: JSON.stringify({ watchedSeconds: current, percent: nextPercent, completed: nextPercent >= 90 })
-                }).then(({ progress: next }) => {
-                  if (next.completed) onComplete(video._id, next);
-                }).catch((err) => setError(err.message));
-              }, 5000);
+                
+                if (accumulatedRef.current % 5 === 0 || nextPercent >= 90) {
+                  api(`/progress/${video._id}`, {
+                    method: 'POST',
+                    body: JSON.stringify({ watchedSeconds: accumulatedRef.current, percent: nextPercent, completed: nextPercent >= 90 })
+                  }).then(({ progress: next }) => {
+                    if (next.completed) {
+                      clearInterval(intervalRef.current);
+                      onComplete(video._id, next);
+                    }
+                  }).catch((err) => setError(err.message));
+                }
+              }, 1000);
+            } else {
+              clearInterval(intervalRef.current);
             }
             if (event.data === YT.PlayerState.ENDED) {
-              api(`/progress/${video._id}`, {
-                method: 'POST',
-                body: JSON.stringify({ watchedSeconds: video.durationSeconds, percent: 100, completed: true })
-              }).then(({ progress: next }) => onComplete(video._id, next));
+              const duration = playerRef.current.getDuration() || video.durationSeconds;
+              if (accumulatedRef.current >= duration * 0.9) {
+                api(`/progress/${video._id}`, {
+                  method: 'POST',
+                  body: JSON.stringify({ watchedSeconds: duration, percent: 100, completed: true })
+                }).then(({ progress: next }) => onComplete(video._id, next));
+              } else {
+                playerRef.current.seekTo(0);
+                playerRef.current.pauseVideo();
+                setError('Skipping is not allowed. Please watch the full video.');
+                accumulatedRef.current = 0;
+                setPercent(0);
+              }
             }
           }
         }
@@ -66,7 +95,12 @@ function VideoTask({ video, progress, onComplete }) {
 
   return (
     <article className="video-card">
-      <div className="video-frame"><div ref={containerRef} /></div>
+      <div className="video-frame">
+        <div ref={containerRef} />
+        <button className="fullscreen-btn" onClick={toggleFullscreen} aria-label="Fullscreen" title="Fullscreen">
+          <Maximize size={18} />
+        </button>
+      </div>
       <div className="video-meta">
         <div>
           <h3>{video.title}</h3>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api.js';
+import { formatAction, formatActor, formatDetails, formatTargetType } from '../utils/adminFormatting.js';
 
 export default function AdminAuditLogs() {
   const [logs, setLogs] = useState([]);
@@ -17,16 +18,19 @@ export default function AdminAuditLogs() {
       <section className="panel">
         <div className="admin-list">
           {logs.map((log) => (
-            <article className="admin-row transaction-row" key={log._id}>
+            <article className="history-row audit-row" key={log._id}>
               <div>
-                <strong>{log.action}</strong>
-                <span>{log.actor?.email || 'Unknown admin'}</span>
+                <strong>{formatAction(log.action)}</strong>
+                <span>{formatActor(log.actor)}</span>
               </div>
               <div>
-                <strong>{log.targetType}</strong>
+                <strong>{formatTargetType(log.targetType)}</strong>
                 <span>{new Date(log.createdAt).toLocaleString()}</span>
               </div>
-              <pre className="log-details">{JSON.stringify(log.details || {}, null, 2)}</pre>
+              <div className="audit-details">
+                <strong>Summary</strong>
+                <span>{formatDetails(log.details)}</span>
+              </div>
             </article>
           ))}
           {!logs.length && <p className="muted">No audit logs yet.</p>}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api.js';
+import { formatClientInfo } from '../utils/adminFormatting.js';
 
 export default function AdminTaskHistory() {
   const [rows, setRows] = useState([]);
@@ -41,7 +42,7 @@ export default function AdminTaskHistory() {
     <div className="page-stack">
       <section className="panel page-heading">
         <h2>Task history</h2>
-        <p>Review per-user watch progress, completion status, reward payment, IP address, and device details.</p>
+        <p>Review per-user watch progress, completion status, and reward payments.</p>
       </section>
       {error && <div className="alert">{error}</div>}
       <section className="panel">
@@ -49,7 +50,7 @@ export default function AdminTaskHistory() {
           {['all', 'completed', 'incomplete', 'rewarded'].map((item) => (
             <button type="button" key={item} className={status === item ? 'chip active' : 'chip'} onClick={() => setStatus(item)}>{item}</button>
           ))}
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search user, video, or IP" />
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search user or video" />
           <button className="secondary">Search</button>
         </form>
         <div className="admin-list">
@@ -73,8 +74,8 @@ export default function AdminTaskHistory() {
                 <span>{item.completedAt ? new Date(item.completedAt).toLocaleString() : 'Not completed'}</span>
               </div>
               <div>
-                <strong>{item.ipAddress || 'No IP'}</strong>
-                <span title={item.userAgent || ''}>{item.userAgent ? item.userAgent.slice(0, 80) : 'No device data'}</span>
+                <strong>{formatClientInfo(item.ipAddress, 'Unknown location')}</strong>
+                <span>{formatClientInfo(item.userAgent, 'Unknown client')}</span>
               </div>
             </article>
           ))}

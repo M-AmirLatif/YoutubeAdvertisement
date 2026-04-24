@@ -13,6 +13,7 @@ export default function Deposit() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [transactions, setTransactions] = useState([]);
 
   const enabledNetworks = Object.keys(depositWallets).filter((key) => depositWallets[key] || depositWallet);
   const networkOptions = enabledNetworks.length ? enabledNetworks : ['USDT-TRC20', 'USDT-BEP20'];
@@ -25,12 +26,16 @@ export default function Deposit() {
   })), [plans]);
 
   useEffect(() => {
-    api('/transactions/plans').then(({ plans, depositWallet, depositWallets }) => {
-      setPlans(plans);
-      setDepositWallet(depositWallet);
-      setDepositWallets(depositWallets || {});
-      const networks = Object.keys(depositWallets || {}).filter((key) => depositWallets[key] || depositWallet);
+    Promise.all([
+      api('/transactions/plans'),
+      api('/transactions')
+    ]).then(([planData, txData]) => {
+      setPlans(planData.plans);
+      setDepositWallet(planData.depositWallet);
+      setDepositWallets(planData.depositWallets || {});
+      const networks = Object.keys(planData.depositWallets || {}).filter((key) => planData.depositWallets[key] || planData.depositWallet);
       if (networks[0]) setNetwork(networks[0]);
+      setTransactions(txData.transactions.filter((tx) => tx.type === 'deposit'));
     }).catch((err) => setError(err.message)).finally(() => setLoading(false));
   }, []);
 
@@ -48,6 +53,8 @@ export default function Deposit() {
         ? `${response.plan.name} plan activated.`
         : `${response.plan.name} deposit request is pending admin review.`);
       setProof('');
+      const txData = await api('/transactions');
+      setTransactions(txData.transactions.filter((tx) => tx.type === 'deposit'));
     } catch (err) {
       setError(err.message);
     }
@@ -105,6 +112,23 @@ export default function Deposit() {
           <button className="primary" disabled={!selectedPlan}>{amount > 0 ? 'Submit Deposit' : 'Activate Free Plan'}</button>
         </form>
       </aside>
+
+      <section style={{ gridColumn: '1 / -1', marginTop: '20px' }}>
+        <h2 className="sub-title">Recent Deposits</h2>
+        <div className="request-table">
+          <div className="request-row header">
+            <strong>Date</strong><strong>Amount</strong><strong>Status</strong>
+          </div>
+          {transactions.slice(0, 8).map((tx) => (
+            <div className="request-row" key={tx._id}>
+              <span>{new Date(tx.createdAt).toLocaleDateString()}</span>
+              <span>${Number(tx.amount).toFixed(2)}</span>
+              <span style={{ textTransform: 'capitalize', fontWeight: 'bold', color: tx.status === 'rejected' ? '#f87171' : 'inherit' }}>{tx.status}</span>
+            </div>
+          ))}
+          {!transactions.length && <p>No deposits yet.</p>}
+        </div>
+      </section>
     </div>
   );
 }
