@@ -10,7 +10,9 @@ import Deposit from './pages/Deposit.jsx';
 import Withdraw from './pages/Withdraw.jsx';
 import Team from './pages/Team.jsx';
 import Profile from './pages/Profile.jsx';
+import Courses from './pages/Courses.jsx';
 import VideosAdmin from './pages/VideosAdmin.jsx';
+import AdminCourses from './pages/AdminCourses.jsx';
 import AdminDashboard from './pages/AdminDashboard.jsx';
 import AdminUsers from './pages/AdminUsers.jsx';
 import AdminTransactions from './pages/AdminTransactions.jsx';
@@ -50,9 +52,11 @@ function AppRoutes() {
         <Route path="deposit" element={<Deposit />} />
         <Route path="withdraw" element={<Withdraw />} />
         <Route path="team" element={<Team />} />
+        <Route path="courses" element={<Courses />} />
         <Route path="profile" element={<Profile />} />
         <Route path="admin" element={<AdminOnly><AdminDashboard /></AdminOnly>} />
         <Route path="admin/videos" element={<AdminOnly><VideosAdmin /></AdminOnly>} />
+        <Route path="admin/courses" element={<AdminOnly><AdminCourses /></AdminOnly>} />
         <Route path="admin/users" element={<AdminOnly><AdminUsers /></AdminOnly>} />
         <Route path="admin/transactions" element={<AdminOnly><AdminTransactions /></AdminOnly>} />
         <Route path="admin/task-history" element={<AdminOnly><AdminTaskHistory /></AdminOnly>} />

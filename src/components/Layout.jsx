@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
-import { ClipboardList, Clapperboard, Crown, Gauge, Home, LogOut, ReceiptText, UserCog, UsersRound, WalletCards } from 'lucide-react';
+import { ClipboardList, Clapperboard, Crown, Gauge, Home, LogOut, ReceiptText, UserCog, UsersRound, WalletCards, BookOpen } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { branding } from '../config/branding.js';
 
@@ -7,6 +7,7 @@ const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: Home },
   { to: '/deposit', label: 'Deposit', icon: WalletCards },
   { to: '/tasks', label: 'Tasks & Surveys', icon: ClipboardList },
+  { to: '/courses', label: 'Course', icon: BookOpen },
   { to: '/withdraw', label: 'Withdraw', icon: ReceiptText },
   { to: '/team', label: 'My Team', icon: UsersRound },
   { to: '/profile', label: 'Profile', icon: UserCog }
@@ -15,6 +16,7 @@ const navItems = [
 const adminItems = [
   { to: '/admin', label: 'Admin', icon: Gauge },
   { to: '/admin/videos', label: 'Tasks / Videos', icon: Clapperboard },
+  { to: '/admin/courses', label: 'Course Setup', icon: BookOpen },
   { to: '/admin/users', label: 'Users', icon: UsersRound },
   { to: '/admin/transactions', label: 'Requests', icon: WalletCards },
   { to: '/admin/task-history', label: 'Task History', icon: ClipboardList },

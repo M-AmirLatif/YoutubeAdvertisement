@@ -12,6 +12,7 @@ import videoRoutes from './routes/videos.js';
 import progressRoutes from './routes/progress.js';
 import transactionRoutes from './routes/transactions.js';
 import adminRoutes from './routes/admin.js';
+import courseRoutes from './routes/courses.js';
 
 dotenv.config();
 
@@ -59,6 +60,7 @@ app.use('/api/videos', videoRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/courses', courseRoutes);
 
 app.use('/api', (_req, res) => {
   res.status(404).json({ message: 'API route not found.' });
