@@ -114,10 +114,20 @@ export default function Layout() {
       </aside>
       <main>
         <header className="shell-header">
-          <div className="shell-header-copy">
-            <span className="shell-header-eyebrow">{branding.shortName} Workspace</span>
-            <h1>{currentLabel}</h1>
-            <p>{currentDescription}</p>
+          <div className="shell-header-main">
+            <div className="shell-header-brand">
+              <div className="shell-header-mark">
+                <strong>{branding.shortName}</strong>
+              </div>
+              <div className="shell-header-brand-copy">
+                <span className="shell-header-eyebrow">Platform Workspace</span>
+                <strong>YouTube Automation</strong>
+              </div>
+            </div>
+            <div className="shell-header-copy">
+              <h1>{currentLabel}</h1>
+              <p>{currentDescription}</p>
+            </div>
           </div>
           <div className="shell-header-badge">
             <span>{user?.role === 'admin' ? 'Admin View' : 'Member View'}</span>
