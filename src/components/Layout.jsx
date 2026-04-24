@@ -54,6 +54,7 @@ export default function Layout() {
   useEffect(() => {
     setMobileSidebarOpen(false);
   }, [location.pathname]);
+  const currentDescription = pageDescriptions[location.pathname] || 'Navigate and manage your workspace with a cleaner flow.';
   return (
     <div className="app-shell">
       <button
@@ -113,11 +114,17 @@ export default function Layout() {
       <main>
         <header className="shell-header">
           <div className="shell-header-main">
-            <div className="shell-header-brand-copy">
-              <span className="shell-header-eyebrow">Platform Workspace</span>
-              <strong>YouTube Automation</strong>
+            <div className="shell-header-logo">
+              <div className="shell-header-logo-mark">
+                <strong>{branding.shortName}</strong>
+              </div>
             </div>
-            <p className="shell-header-tagline">Clean task management, payments, and account control in one place.</p>
+            <div className="shell-header-copy">
+              <span className="shell-header-eyebrow">Platform Workspace</span>
+              <strong className="shell-header-brand-title">YouTube Automation</strong>
+              <h1>{currentLabel}</h1>
+              <p className="shell-header-tagline">{currentDescription}</p>
+            </div>
           </div>
         </header>
         <header className="mobile-appbar">
