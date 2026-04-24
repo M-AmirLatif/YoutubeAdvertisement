@@ -673,8 +673,21 @@ select:disabled, button:disabled { opacity: .5; cursor: not-allowed; }
 
 .pagination-bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 24px; color: var(--muted); font-weight: 600; font-size: 14px; }
 .task-admin-form { row-gap: 18px; }
-.task-admin-form > .primary,
-.task-admin-form > .secondary { margin-top: 8px; }
+.task-admin-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+  gap: 12px;
+}
+.task-admin-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.task-admin-buttons .primary,
+.task-admin-buttons .secondary {
+  margin: 0;
+}
 .task-admin-list-panel .section-title { margin-bottom: 14px; }
 .task-history-toolbar { align-items: stretch; }
 .task-history-list { gap: 10px; }
@@ -861,9 +874,10 @@ select:disabled, button:disabled { opacity: .5; cursor: not-allowed; }
   .toolbar { gap: 8px; margin-bottom: 18px; }
   .chip { padding: 7px 12px; font-size: 12px; }
   .task-admin-form { row-gap: 16px; }
-  .task-admin-form > label:last-of-type { margin-bottom: 8px; }
-  .task-admin-form > .primary,
-  .task-admin-form > .secondary { margin-top: 10px; }
+  .task-admin-buttons .primary,
+  .task-admin-buttons .secondary {
+    flex: 1 1 0;
+  }
   .task-history-panel { gap: 0; }
   .task-history-toolbar {
     display: grid;
@@ -871,10 +885,7 @@ select:disabled, button:disabled { opacity: .5; cursor: not-allowed; }
     gap: 10px;
     margin-bottom: 16px;
   }
-  .task-history-toolbar input,
-  .task-history-toolbar .secondary {
-    grid-column: 1 / -1;
-  }
+  .task-history-toolbar input { grid-column: 1 / -1; }
   .task-history-list { margin-top: 4px; }
   .task-history-pagination {
     display: grid;
@@ -977,9 +988,11 @@ select:disabled, button:disabled { opacity: .5; cursor: not-allowed; }
   .video-card-footer { flex-direction: column; align-items: stretch; gap: 12px; }
   .table-row { grid-template-columns: 1fr; }
   .task-admin-form { row-gap: 14px; }
-  .task-admin-form > label:last-of-type { margin-bottom: 10px; }
-  .task-admin-form > .primary,
-  .task-admin-form > .secondary { margin-top: 0; }
+  .task-admin-controls { gap: 10px; }
+  .task-admin-buttons {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
   .task-history-toolbar {
     grid-template-columns: 1fr;
     gap: 8px;
