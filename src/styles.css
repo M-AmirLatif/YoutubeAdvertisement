@@ -289,10 +289,7 @@ main::-webkit-scrollbar-track { background: transparent; }
 main::-webkit-scrollbar-thumb { background: rgba(255,255,255,.2); border-radius: 999px; }
 .mobile-appbar { display: none; }
 .shell-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 24px;
+  display: block;
   margin-bottom: 32px;
   padding: 28px 30px;
   border: 1px solid rgba(59, 130, 246, 0.16);
@@ -314,32 +311,8 @@ main::-webkit-scrollbar-thumb { background: rgba(255,255,255,.2); border-radius:
   background: radial-gradient(circle, rgba(139, 92, 246, 0.18), transparent 70%);
   pointer-events: none;
 }
-.shell-header-main { position: relative; z-index: 1; display: grid; gap: 18px; max-width: 680px; }
-.shell-header-brand {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-}
-.shell-header-mark {
-  width: 72px;
-  height: 72px;
-  border-radius: 22px;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(135deg, #4f8cff, #8b5cf6);
-  box-shadow: 0 18px 36px rgba(79, 140, 255, 0.28);
-}
-.shell-header-mark strong {
-  color: white;
-  font-size: 28px;
-  font-family: 'Outfit', sans-serif;
-  font-weight: 900;
-  letter-spacing: -0.05em;
-}
-.shell-header-brand-copy {
-  display: grid;
-  gap: 4px;
-}
+.shell-header-main { position: relative; z-index: 1; display: grid; gap: 16px; max-width: 760px; }
+.shell-header-brand-copy { display: grid; gap: 4px; }
 .shell-header-eyebrow {
   color: #93c5fd;
   font-size: 12px;
@@ -368,30 +341,6 @@ main::-webkit-scrollbar-thumb { background: rgba(255,255,255,.2); border-radius:
   font-size: 16px;
   line-height: 1.6;
   color: #a5b4cc;
-}
-.shell-header-badge {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  gap: 6px;
-  min-width: 180px;
-  padding: 14px 16px;
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 18px;
-  background: rgba(255,255,255,0.04);
-  text-align: right;
-}
-.shell-header-badge span {
-  color: var(--muted);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-weight: 700;
-}
-.shell-header-badge strong {
-  color: white;
-  font-size: 18px;
-  font-family: 'Outfit', sans-serif;
 }
 
 .topbar { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; margin-bottom: 56px; }
@@ -817,17 +766,11 @@ select:disabled, button:disabled { opacity: .5; cursor: not-allowed; }
     margin-bottom: 24px;
     padding: 20px 20px 18px;
     border-radius: 18px;
-    gap: 16px;
   }
-  .shell-header-main { gap: 14px; }
-  .shell-header-brand { gap: 14px; }
-  .shell-header-mark { width: 58px; height: 58px; border-radius: 18px; }
-  .shell-header-mark strong { font-size: 22px; }
+  .shell-header-main { gap: 12px; }
   .shell-header-brand-copy strong { font-size: 28px; }
   .shell-header h1 { font-size: 24px; }
   .shell-header p { font-size: 14px; line-height: 1.5; }
-  .shell-header-badge { min-width: 148px; padding: 12px 14px; border-radius: 14px; }
-  .shell-header-badge strong { font-size: 16px; }
   .topbar { flex-direction: column; align-items: flex-start; margin-bottom: 24px; gap: 14px; }
   .topbar h1 { font-size: 28px; }
   .topbar p { font-size: 15px; }
@@ -915,27 +858,12 @@ select:disabled, button:disabled { opacity: .5; cursor: not-allowed; }
     margin-bottom: 18px;
     padding: 16px 14px;
     border-radius: 16px;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
   }
   .shell-header-main { gap: 12px; }
-  .shell-header-brand { gap: 12px; }
-  .shell-header-mark { width: 48px; height: 48px; border-radius: 15px; }
-  .shell-header-mark strong { font-size: 18px; }
   .shell-header-brand-copy strong { font-size: 22px; }
   .shell-header-eyebrow { font-size: 10px; letter-spacing: 0.12em; }
   .shell-header h1 { font-size: 20px; }
   .shell-header p { font-size: 13px; }
-  .shell-header-badge {
-    min-width: 0;
-    width: 100%;
-    padding: 10px 12px;
-    text-align: left;
-    border-radius: 12px;
-  }
-  .shell-header-badge span { font-size: 10px; }
-  .shell-header-badge strong { font-size: 14px; }
   .auth-page { padding: 20px 12px; }
   .auth-panel { border-radius: 20px; padding: 40px 24px; }
   .auth-brand h1 { font-size: 32px; }
