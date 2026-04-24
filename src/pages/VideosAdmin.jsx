@@ -103,7 +103,7 @@ export default function VideosAdmin() {
       ) : (
         <>
           <section className="panel">
-            <form className="form compact" onSubmit={submit}>
+            <form className="form compact task-admin-form" onSubmit={submit}>
           {error && <div className="alert">{error}</div>}
           {message && <div className="success">{message}</div>}
           <label>Title<input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></label>
@@ -120,7 +120,7 @@ export default function VideosAdmin() {
           {editingId && <button className="secondary" type="button" onClick={resetForm}>Cancel</button>}
         </form>
       </section>
-      <section className="panel">
+      <section className="panel task-admin-list-panel">
         <div className="section-title"><span>All tasks</span></div>
         <div className="admin-list">
           {videos.map((video) => (

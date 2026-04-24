@@ -45,15 +45,15 @@ export default function AdminTaskHistory() {
         <p>Review per-user watch progress, completion status, and reward payments.</p>
       </section>
       {error && <div className="alert">{error}</div>}
-      <section className="panel">
-        <form className="toolbar" onSubmit={submit}>
+      <section className="panel task-history-panel">
+        <form className="toolbar task-history-toolbar" onSubmit={submit}>
           {['all', 'completed', 'incomplete', 'rewarded'].map((item) => (
             <button type="button" key={item} className={status === item ? 'chip active' : 'chip'} onClick={() => setStatus(item)}>{item}</button>
           ))}
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search user or video" />
           <button className="secondary">Search</button>
         </form>
-        <div className="admin-list">
+        <div className="admin-list task-history-list">
           {loading && <p className="muted">Loading task history...</p>}
           {!loading && rows.map((item) => (
             <article className="history-row" key={item._id}>
@@ -81,7 +81,7 @@ export default function AdminTaskHistory() {
           ))}
           {!loading && !rows.length && <p className="muted">No task history found.</p>}
         </div>
-        <div className="pagination-bar">
+        <div className="pagination-bar task-history-pagination">
           <button className="secondary" disabled={page <= 1} onClick={() => load(page - 1)}>Previous</button>
           <span>Page {page} of {maxPage} - {total} records</span>
           <button className="secondary" disabled={page >= maxPage} onClick={() => load(page + 1)}>Next</button>
