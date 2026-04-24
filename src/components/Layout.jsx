@@ -24,6 +24,23 @@ const adminItems = [
   { to: '/admin/audit-logs', label: 'Audit Logs', icon: ClipboardList }
 ];
 
+const pageDescriptions = {
+  '/dashboard': 'Overview of earnings, activity, and task momentum.',
+  '/deposit': 'Choose a plan and submit your payment details cleanly.',
+  '/tasks': 'Complete available tasks and track your progress.',
+  '/courses': 'Access training content and helpful learning resources.',
+  '/withdraw': 'Review balance details and submit payout requests.',
+  '/team': 'See referrals, team growth, and member activity.',
+  '/profile': 'Manage account details and security settings.',
+  '/admin': 'Monitor platform totals and core admin metrics.',
+  '/admin/videos': 'Create, edit, and manage all user-facing tasks.',
+  '/admin/courses': 'Organize course content and supporting links.',
+  '/admin/users': 'Review user balances, status, and controls.',
+  '/admin/transactions': 'Handle deposits, withdrawals, and request status.',
+  '/admin/task-history': 'Inspect task completion and reward history.',
+  '/admin/audit-logs': 'Review admin activity and important platform events.'
+};
+
 export default function Layout() {
   const { user, logout } = useAuth();
   const location = useLocation();
@@ -37,6 +54,7 @@ export default function Layout() {
   useEffect(() => {
     setMobileSidebarOpen(false);
   }, [location.pathname]);
+  const currentDescription = pageDescriptions[location.pathname] || 'Navigate and manage your workspace with a cleaner flow.';
 
   return (
     <div className="app-shell">
@@ -48,10 +66,15 @@ export default function Layout() {
       />
       <aside className={`sidebar ${mobileSidebarOpen ? 'mobile-open' : ''}`}>
         <div className="sidebar-logo">
-          <div className="sidebar-logo-mark">
-            <strong>{branding.shortName}</strong>
+          <div className="sidebar-logo-mark-wrap">
+            <div className="sidebar-logo-mark">
+              <strong>{branding.shortName}</strong>
+            </div>
+            <div className="sidebar-brand-copy">
+              <strong>{branding.appName}</strong>
+              <span>{branding.authTagline}</span>
+            </div>
           </div>
-          <span>{branding.authTagline}</span>
           <button
             type="button"
             className="sidebar-close"
@@ -90,6 +113,17 @@ export default function Layout() {
         </button>
       </aside>
       <main>
+        <header className="shell-header">
+          <div className="shell-header-copy">
+            <span className="shell-header-eyebrow">{branding.shortName} Workspace</span>
+            <h1>{currentLabel}</h1>
+            <p>{currentDescription}</p>
+          </div>
+          <div className="shell-header-badge">
+            <span>{user?.role === 'admin' ? 'Admin View' : 'Member View'}</span>
+            <strong>{user?.username || 'Member'}</strong>
+          </div>
+        </header>
         <header className="mobile-appbar">
           <button
             type="button"
@@ -106,7 +140,7 @@ export default function Layout() {
           </div>
         </header>
         {isDashboard && (
-          <header className="topbar">
+          <header className="topbar dashboard-hero">
             <div>
               <h1>Dashboard</h1>
               <p>Welcome back, {user?.username || 'Member'}!</p>
