@@ -110,15 +110,17 @@ export default function VideosAdmin() {
           <label>YouTube URL<input required value={form.youtubeUrl} onChange={(e) => setForm({ ...form, youtubeUrl: e.target.value })} /></label>
           <label>Reward<input type="number" min="0" step="0.01" value={form.reward} onChange={(e) => setForm({ ...form, reward: Number(e.target.value) })} /></label>
           <label>Duration seconds<input type="number" min="1" value={form.durationSeconds} onChange={(e) => setForm({ ...form, durationSeconds: Number(e.target.value) })} /></label>
-          <label className="task-admin-status section-span-full">Status
-            <select value={form.isActive ? 'active' : 'inactive'} onChange={(e) => setForm({ ...form, isActive: e.target.value === 'active' })}>
-              <option value="active">Active for users</option>
-              <option value="inactive">Hidden from users</option>
-            </select>
-          </label>
-          <div className="task-admin-buttons section-span-full">
-            <button className="primary">{editingId ? 'Save task' : 'Add task'}</button>
-            {editingId && <button className="secondary" type="button" onClick={resetForm}>Cancel</button>}
+          <div className="task-admin-controls section-span-full">
+            <label className="task-admin-status">Status
+              <select value={form.isActive ? 'active' : 'inactive'} onChange={(e) => setForm({ ...form, isActive: e.target.value === 'active' })}>
+                <option value="active">Active for users</option>
+                <option value="inactive">Hidden from users</option>
+              </select>
+            </label>
+            <div className="task-admin-buttons">
+              <button className="primary">{editingId ? 'Save task' : 'Add task'}</button>
+              {editingId && <button className="secondary" type="button" onClick={resetForm}>Cancel</button>}
+            </div>
           </div>
         </form>
       </section>
