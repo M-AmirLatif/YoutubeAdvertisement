@@ -28,13 +28,11 @@ export default function AdminTaskHistory() {
   }
 
   useEffect(() => {
-    load(1);
-  }, [status]);
-
-  function submit(event) {
-    event.preventDefault();
-    load(1);
-  }
+    const timer = window.setTimeout(() => {
+      load(1);
+    }, 250);
+    return () => window.clearTimeout(timer);
+  }, [status, search]);
 
   const maxPage = Math.max(1, Math.ceil(total / 50));
 
@@ -46,13 +44,12 @@ export default function AdminTaskHistory() {
       </section>
       {error && <div className="alert">{error}</div>}
       <section className="panel task-history-panel">
-        <form className="toolbar task-history-toolbar" onSubmit={submit}>
+        <div className="toolbar task-history-toolbar">
           {['all', 'completed', 'incomplete', 'rewarded'].map((item) => (
             <button type="button" key={item} className={status === item ? 'chip active' : 'chip'} onClick={() => setStatus(item)}>{item}</button>
           ))}
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search user or video" />
-          <button className="secondary">Search</button>
-        </form>
+        </div>
         <div className="admin-list task-history-list">
           {loading && <p className="muted">Loading task history...</p>}
           {!loading && rows.map((item) => (
