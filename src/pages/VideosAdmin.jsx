@@ -92,7 +92,7 @@ export default function VideosAdmin() {
       <section className="panel page-heading">
         <h2>Task Management</h2>
         <p>Add, edit, or archive tasks that users will complete for rewards.</p>
-        <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
+        <div className="segmented-actions">
           <button className={activeTab === 'video' ? 'primary' : 'secondary'} onClick={() => setActiveTab('video')}>Video Tasks</button>
           <button className={activeTab === 'mcq' ? 'primary' : 'secondary'} onClick={() => setActiveTab('mcq')}>MCQ Tasks</button>
         </div>

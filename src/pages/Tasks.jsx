@@ -164,7 +164,7 @@ export default function Tasks() {
         <strong>{displayCompleted} / {dailyLimit}</strong>
       </section>
 
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+      <div className="segmented-actions tight">
         <button className={activeTab === 'video' ? 'primary' : 'secondary'} onClick={() => setActiveTab('video')}>Watch Videos</button>
         <button className={activeTab === 'mcq' ? 'primary' : 'secondary'} onClick={() => setActiveTab('mcq')}>MCQ Quizzes</button>
       </div>

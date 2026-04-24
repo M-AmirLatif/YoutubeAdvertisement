@@ -125,11 +125,11 @@ export default function AdminQuizzes() {
           <label>Title<input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="e.g. YouTube Marketing Quiz" /></label>
           <label>Reward ($)<input type="number" min="0" step="0.01" value={form.reward} onChange={(e) => setForm({ ...form, reward: Number(e.target.value) })} /></label>
           
-          <div className="nav-divider" style={{ gridColumn: '1 / -1', marginTop: '20px', marginBottom: '20px' }}>Questions</div>
+          <div className="nav-divider section-span-full" style={{ marginTop: '20px', marginBottom: '20px' }}>Questions</div>
           
           {form.questions.map((q, qIndex) => (
-            <div key={qIndex} style={{ gridColumn: '1 / -1', padding: '16px', background: 'var(--bg-card)', borderRadius: '8px', marginBottom: '16px', border: '1px solid var(--border)' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+            <div key={qIndex} className="question-card">
+              <div className="question-card-header">
                 <strong>Question {qIndex + 1}</strong>
                 {form.questions.length > 1 && (
                   <button type="button" className="danger" onClick={() => removeQuestion(qIndex)} style={{ padding: '4px 8px', fontSize: '12px' }}>Remove</button>
@@ -137,22 +137,21 @@ export default function AdminQuizzes() {
               </div>
               <label>Question Text<input required value={q.questionText} onChange={(e) => updateQuestion(qIndex, 'questionText', e.target.value)} /></label>
               
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '10px' }}>
+              <div className="question-options-grid">
                 {q.options.map((opt, optIndex) => (
-                  <label key={optIndex} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                  <label key={optIndex} className="question-option">
                     <input 
                       type="radio" 
                       name={`correct-${qIndex}`} 
                       checked={q.correctOptionIndex === optIndex} 
                       onChange={() => updateQuestion(qIndex, 'correctOptionIndex', optIndex)}
-                      style={{ width: 'auto', margin: 0 }}
                     />
                     <input 
+                      type="text"
                       required 
                       value={opt} 
                       onChange={(e) => updateOption(qIndex, optIndex, e.target.value)} 
                       placeholder={`Option ${optIndex + 1}`}
-                      style={{ flex: 1 }}
                     />
                   </label>
                 ))}
@@ -161,7 +160,7 @@ export default function AdminQuizzes() {
             </div>
           ))}
 
-          <button type="button" className="secondary" onClick={addQuestion} style={{ gridColumn: '1 / -1', marginBottom: '20px' }}>+ Add Question</button>
+          <button type="button" className="secondary section-span-full" onClick={addQuestion} style={{ marginBottom: '20px' }}>+ Add Question</button>
 
           <label>Status
             <select value={form.isActive ? 'active' : 'inactive'} onChange={(e) => setForm({ ...form, isActive: e.target.value === 'active' })}>
@@ -169,7 +168,7 @@ export default function AdminQuizzes() {
               <option value="inactive">Hidden from users</option>
             </select>
           </label>
-          <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '10px' }}>
+          <div className="segmented-actions section-span-full">
             <button className="primary">{editingId ? 'Save MCQ Task' : 'Add MCQ Task'}</button>
             {editingId && <button className="secondary" type="button" onClick={resetForm}>Cancel</button>}
           </div>
