@@ -6,7 +6,6 @@ export default function AdminTaskHistory() {
   const [rows, setRows] = useState([]);
   const [total, setTotal] = useState(0);
   const [status, setStatus] = useState('all');
-  const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
@@ -15,7 +14,7 @@ export default function AdminTaskHistory() {
     setLoading(true);
     setError('');
     try {
-      const params = new URLSearchParams({ status, search, page: String(nextPage), limit: '50' });
+      const params = new URLSearchParams({ status, page: String(nextPage), limit: '50' });
       const data = await api(`/admin/task-history?${params.toString()}`);
       setRows(data.rows);
       setTotal(data.total);
@@ -32,7 +31,7 @@ export default function AdminTaskHistory() {
       load(1);
     }, 250);
     return () => window.clearTimeout(timer);
-  }, [status, search]);
+  }, [status]);
 
   const maxPage = Math.max(1, Math.ceil(total / 50));
 
@@ -48,7 +47,6 @@ export default function AdminTaskHistory() {
           {['all', 'completed', 'incomplete', 'rewarded'].map((item) => (
             <button type="button" key={item} className={status === item ? 'chip active' : 'chip'} onClick={() => setStatus(item)}>{item}</button>
           ))}
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search user or video" />
         </div>
         <div className="admin-list task-history-list">
           {loading && <p className="muted">Loading task history...</p>}
