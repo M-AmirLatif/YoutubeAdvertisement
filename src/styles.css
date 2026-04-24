@@ -665,7 +665,42 @@ select:disabled, button:disabled { opacity: .5; cursor: not-allowed; }
     text-align: center;
   }
 
-  main { min-height: 100vh; height: auto; overflow-y: auto; padding: 20px 18px; }
+  main {
+    min-height: 100vh;
+    height: auto;
+    overflow-y: auto;
+    padding: 24px 22px;
+    display: grid;
+    align-content: start;
+    justify-items: start;
+    gap: 0;
+  }
+  main > * {
+    width: min(100%, 920px);
+    justify-self: start;
+  }
+  .page-stack,
+  .tasks-page,
+  .team-page,
+  .funds-layout,
+  .withdraw-layout,
+  .profile-layout {
+    width: min(100%, 920px);
+  }
+  .page-heading,
+  .topbar,
+  .survey-progress,
+  .invite-panel,
+  .balance-panel,
+  .request-table,
+  .team-panel,
+  .profile-card,
+  .settings-card,
+  .payment-card,
+  .request-card,
+  .panel {
+    width: 100%;
+  }
   .mobile-appbar { display: none; }
   .topbar { flex-direction: column; align-items: flex-start; margin-bottom: 32px; gap: 20px; }
   .topbar h1 { font-size: 32px; }
@@ -689,7 +724,12 @@ select:disabled, button:disabled { opacity: .5; cursor: not-allowed; }
 }
 
 @media (max-width: 640px) {
-  main { padding: 20px 16px; }
+  main {
+    padding: 20px 16px;
+  }
+  main > * {
+    width: 100%;
+  }
   .app-shell { grid-template-columns: 96px minmax(0, 1fr); }
   .sidebar-logo { min-height: 104px; padding: 18px 10px 14px; }
   .sidebar-logo-mark { width: 40px; height: 40px; }
