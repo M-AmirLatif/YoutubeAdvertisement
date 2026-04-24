@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api.js';
+import AdminQuizzes from '../components/AdminQuizzes.jsx';
 
 const emptyForm = { title: '', youtubeUrl: '', reward: 0.25, durationSeconds: 30, isActive: true };
 
@@ -9,6 +10,7 @@ export default function VideosAdmin() {
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [activeTab, setActiveTab] = useState('video');
 
   async function load() {
     const data = await api('/videos/admin/all');
@@ -88,11 +90,20 @@ export default function VideosAdmin() {
   return (
     <div className="page-stack">
       <section className="panel page-heading">
-        <h2>Task & YouTube Link Management</h2>
-        <p>Add, edit, or archive tasks that users will watch for rewards.</p>
+        <h2>Task Management</h2>
+        <p>Add, edit, or archive tasks that users will complete for rewards.</p>
+        <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
+          <button className={activeTab === 'video' ? 'primary' : 'secondary'} onClick={() => setActiveTab('video')}>Video Tasks</button>
+          <button className={activeTab === 'mcq' ? 'primary' : 'secondary'} onClick={() => setActiveTab('mcq')}>MCQ Tasks</button>
+        </div>
       </section>
-      <section className="panel">
-        <form className="form compact" onSubmit={submit}>
+
+      {activeTab === 'mcq' ? (
+        <AdminQuizzes />
+      ) : (
+        <>
+          <section className="panel">
+            <form className="form compact" onSubmit={submit}>
           {error && <div className="alert">{error}</div>}
           {message && <div className="success">{message}</div>}
           <label>Title<input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></label>
@@ -132,7 +143,9 @@ export default function VideosAdmin() {
           ))}
           {!videos.length && <p className="muted">No tasks have been added yet.</p>}
         </div>
-      </section>
+          </section>
+        </>
+      )}
     </div>
   );
 }

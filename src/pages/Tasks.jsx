@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { CheckCircle2, PlayCircle, Maximize } from 'lucide-react';
 import { api } from '../api.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import QuizTask from '../components/QuizTask.jsx';
 
 function ensureYouTubeApi() {
   if (window.YT?.Player) return Promise.resolve(window.YT);
@@ -120,19 +121,32 @@ function VideoTask({ video, progress, onComplete }) {
 export default function Tasks() {
   const { user } = useAuth();
   const [videos, setVideos] = useState([]);
+  const [quizzes, setQuizzes] = useState([]);
   const [progressByVideo, setProgressByVideo] = useState({});
+  const [progressByQuiz, setProgressByQuiz] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [activeTab, setActiveTab] = useState('video');
 
   useEffect(() => {
-    api('/videos').then(({ videos, progress }) => {
-      setVideos(videos);
-      setProgressByVideo(Object.fromEntries(progress.map((item) => [item.video, item])));
+    Promise.all([
+      api('/videos'),
+      api('/quizzes')
+    ]).then(([videoData, quizData]) => {
+      setVideos(videoData.videos);
+      setProgressByVideo(Object.fromEntries(videoData.progress.map((item) => [item.video, item])));
+      
+      setQuizzes(quizData.quizzes || []);
+      setProgressByQuiz(Object.fromEntries((quizData.progress || []).map((item) => [item.quiz, item])));
     }).catch((err) => setError(err.message)).finally(() => setLoading(false));
   }, []);
 
   function handleComplete(videoId, progress) {
     setProgressByVideo((current) => ({ ...current, [videoId]: progress }));
+  }
+
+  function handleQuizComplete(quizId, progress) {
+    setProgressByQuiz((current) => ({ ...current, [quizId]: progress }));
   }
 
   const completedVideos = Object.values(progressByVideo).filter((item) => item.completed).length;
@@ -142,7 +156,7 @@ export default function Tasks() {
 
   return (
     <div className="tasks-page">
-      <section className="survey-progress">
+      <section className="survey-progress" style={{ marginBottom: '20px' }}>
         <div>
           <h2>Today's Progress</h2>
           <div className="survey-track"><span style={{ width: `${progressPercent}%` }} /></div>
@@ -150,14 +164,29 @@ export default function Tasks() {
         <strong>{displayCompleted} / {dailyLimit}</strong>
       </section>
 
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+        <button className={activeTab === 'video' ? 'primary' : 'secondary'} onClick={() => setActiveTab('video')}>Watch Videos</button>
+        <button className={activeTab === 'mcq' ? 'primary' : 'secondary'} onClick={() => setActiveTab('mcq')}>MCQ Quizzes</button>
+      </div>
+
       {error && <div className="alert">{error}</div>}
-      <section className="video-grid survey-video-grid">
-        {loading && <div className="empty-state">Loading active video tasks...</div>}
-        {videos.map((video) => (
-          <VideoTask key={video._id} video={video} progress={progressByVideo[video._id]} onComplete={handleComplete} />
-        ))}
-        {!loading && !videos.length && <div className="empty-state">No active video tasks are available right now.</div>}
-      </section>
+      {activeTab === 'video' ? (
+        <section className="video-grid survey-video-grid">
+          {loading && <div className="empty-state">Loading active video tasks...</div>}
+          {videos.map((video) => (
+            <VideoTask key={video._id} video={video} progress={progressByVideo[video._id]} onComplete={handleComplete} />
+          ))}
+          {!loading && !videos.length && <div className="empty-state">No active video tasks are available right now.</div>}
+        </section>
+      ) : (
+        <section className="video-grid survey-video-grid">
+          {loading && <div className="empty-state">Loading active MCQ tasks...</div>}
+          {quizzes.map((quiz) => (
+            <QuizTask key={quiz._id} quiz={quiz} progress={progressByQuiz[quiz._id]} onComplete={handleQuizComplete} />
+          ))}
+          {!loading && !quizzes.length && <div className="empty-state">No active MCQ tasks are available right now.</div>}
+        </section>
+      )}
     </div>
   );
 }
