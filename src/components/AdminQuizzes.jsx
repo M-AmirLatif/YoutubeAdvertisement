@@ -120,15 +120,15 @@ export default function AdminQuizzes() {
       <section className="panel">
         <div className="section-title"><span>{editingId ? 'Edit MCQ Task' : 'Create New MCQ Task'}</span></div>
         <form className="form compact" onSubmit={submit}>
-          {error && <div className="alert">{error}</div>}
-          {message && <div className="success">{message}</div>}
+          {error && <div className="alert" style={{ gridColumn: '1 / -1' }}>{error}</div>}
+          {message && <div className="success" style={{ gridColumn: '1 / -1' }}>{message}</div>}
           <label>Title<input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="e.g. YouTube Marketing Quiz" /></label>
           <label>Reward ($)<input type="number" min="0" step="0.01" value={form.reward} onChange={(e) => setForm({ ...form, reward: Number(e.target.value) })} /></label>
           
-          <div className="nav-divider" style={{ marginTop: '20px', marginBottom: '20px' }}>Questions</div>
+          <div className="nav-divider" style={{ gridColumn: '1 / -1', marginTop: '20px', marginBottom: '20px' }}>Questions</div>
           
           {form.questions.map((q, qIndex) => (
-            <div key={qIndex} style={{ padding: '16px', background: 'var(--bg-card)', borderRadius: '8px', marginBottom: '16px', border: '1px solid var(--border)' }}>
+            <div key={qIndex} style={{ gridColumn: '1 / -1', padding: '16px', background: 'var(--bg-card)', borderRadius: '8px', marginBottom: '16px', border: '1px solid var(--border)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
                 <strong>Question {qIndex + 1}</strong>
                 {form.questions.length > 1 && (
@@ -161,7 +161,7 @@ export default function AdminQuizzes() {
             </div>
           ))}
 
-          <button type="button" className="secondary" onClick={addQuestion} style={{ marginBottom: '20px' }}>+ Add Question</button>
+          <button type="button" className="secondary" onClick={addQuestion} style={{ gridColumn: '1 / -1', marginBottom: '20px' }}>+ Add Question</button>
 
           <label>Status
             <select value={form.isActive ? 'active' : 'inactive'} onChange={(e) => setForm({ ...form, isActive: e.target.value === 'active' })}>
@@ -169,7 +169,7 @@ export default function AdminQuizzes() {
               <option value="inactive">Hidden from users</option>
             </select>
           </label>
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '10px' }}>
             <button className="primary">{editingId ? 'Save MCQ Task' : 'Add MCQ Task'}</button>
             {editingId && <button className="secondary" type="button" onClick={resetForm}>Cancel</button>}
           </div>
