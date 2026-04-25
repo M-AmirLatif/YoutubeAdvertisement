@@ -84,7 +84,7 @@ router.put('/social-settings', async (req, res) => {
 
 router.get('/users', async (_req, res) => {
   const users = await User.find()
-    .select('-passwordHash')
+    .select('username role isOwner isSuspended balance referralEarnings createdAt')
     .sort({ createdAt: -1 })
     .limit(200);
   const userIds = users.map((user) => user._id);
@@ -147,7 +147,6 @@ router.get('/task-history', async (req, res) => {
     pipeline.push({
       $match: {
         $or: [
-          { 'user.email': { $regex: search, $options: 'i' } },
           { 'user.username': { $regex: search, $options: 'i' } },
           { 'video.title': { $regex: search, $options: 'i' } },
           { ipAddress: { $regex: search, $options: 'i' } }
@@ -177,7 +176,6 @@ router.get('/task-history', async (req, res) => {
               user: {
                 _id: '$user._id',
                 username: '$user.username',
-                email: '$user.email',
                 isSuspended: '$user.isSuspended'
               },
               video: {
@@ -205,7 +203,7 @@ router.get('/task-history', async (req, res) => {
 });
 
 router.put('/users/:id', async (req, res) => {
-  const { role, balance, isSuspended } = req.body;
+  const { role, isSuspended } = req.body;
   const target = await User.findById(req.params.id);
   if (!target) return res.status(404).json({ message: 'User not found.' });
   if (target.isOwner && !req.user.isOwner) {
@@ -214,14 +212,6 @@ router.put('/users/:id', async (req, res) => {
 
   const updates = {};
   if (['user', 'admin'].includes(role)) updates.role = role;
-  if (req.body.password && String(req.body.password).length >= 6) {
-    updates.passwordHash = await bcrypt.hash(String(req.body.password), 12);
-  }
-  if (balance !== undefined && Number.isFinite(Number(balance))) {
-    const numericBalance = Number(balance);
-    if (numericBalance < 0) return res.status(400).json({ message: 'Balance cannot be negative.' });
-    updates.balance = numericBalance;
-  }
   if (typeof isSuspended === 'boolean') updates.isSuspended = isSuspended;
 
   const user = await User.findByIdAndUpdate(req.params.id, updates, { returnDocument: 'after' }).select('-passwordHash');
@@ -235,9 +225,37 @@ router.put('/users/:id', async (req, res) => {
   res.json({ user });
 });
 
+router.post('/users/:id/reset-password', async (req, res) => {
+  const target = await User.findById(req.params.id);
+  if (!target) return res.status(404).json({ message: 'User not found.' });
+  if (target.isOwner && !req.user.isOwner) {
+    return res.status(403).json({ message: 'Only the owner can reset the owner account password.' });
+  }
+
+  const nextPassword = String(req.body.password || '');
+  if (nextPassword.length < 6) {
+    return res.status(400).json({ message: 'New password must be at least 6 characters.' });
+  }
+
+  target.passwordHash = await bcrypt.hash(nextPassword, 12);
+  target.passwordResetTokenHash = '';
+  target.passwordResetExpiresAt = null;
+  await target.save();
+
+  await AuditLog.create({
+    actor: req.user._id,
+    action: 'user.passwordReset.admin',
+    targetType: 'User',
+    targetId: target._id,
+    details: { username: target.username }
+  });
+
+  res.json({ message: `Password updated for ${target.username}.` });
+});
+
 router.get('/audit-logs', async (_req, res) => {
   const logs = await AuditLog.find()
-    .populate('actor', 'username email')
+    .populate('actor', 'username')
     .sort({ createdAt: -1 })
     .limit(100);
   res.json({ logs });

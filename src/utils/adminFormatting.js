@@ -14,7 +14,8 @@ function formatAction(action) {
     'transaction.paid': 'Withdrawal paid',
     'transaction.rejected': 'Request rejected',
     'transaction.pending': 'Request marked pending',
-    'user.update': 'User updated'
+    'user.update': 'User updated',
+    'user.passwordReset.admin': 'Password reset by admin'
   };
 
   return labels[action] || action.replaceAll('.', ' ').replaceAll('_', ' ');
@@ -30,7 +31,7 @@ function formatTargetType(targetType) {
 }
 
 function formatActor(actor) {
-  return actor?.email || actor?.username || 'Unknown admin';
+  return actor?.username || 'Unknown admin';
 }
 
 function formatClientInfo(value, fallback) {
@@ -51,7 +52,6 @@ function formatDetails(details) {
   const pieces = [];
   if (details.title) pieces.push(`Title: ${details.title}`);
   if (details.username) pieces.push(`Username: ${details.username}`);
-  if (details.email) pieces.push(`Email: ${details.email}`);
   if (details.type) pieces.push(`Type: ${details.type}`);
   if (details.status) pieces.push(`Status: ${details.status}`);
   if (details.previousStatus) pieces.push(`Previous status: ${details.previousStatus}`);

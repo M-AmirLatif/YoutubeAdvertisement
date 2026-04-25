@@ -23,19 +23,24 @@ export default function AdminUsers() {
     load();
   }
 
-  async function forcePasswordReset(user) {
-    const newPass = window.prompt(`Enter a new password for ${user.username} (minimum 6 characters):`);
-    if (!newPass) return;
-    if (newPass.length < 6) return alert('Password must be at least 6 characters.');
-    
-    if (!window.confirm(`Are you absolutely sure you want to change the password for ${user.username} to: ${newPass}`)) return;
-    
+  async function resetPassword(user) {
+    const nextPassword = window.prompt(`Enter a new password for ${user.username}.`);
+    if (nextPassword === null) return;
+
+    const trimmedPassword = nextPassword.trim();
+    if (trimmedPassword.length < 6) {
+      window.alert('Password must be at least 6 characters.');
+      return;
+    }
+
     try {
-      await api(`/admin/users/${user._id}`, { method: 'PUT', body: JSON.stringify({ password: newPass }) });
-      alert(`Success! The new password for ${user.username} is: ${newPass}`);
-      load();
+      const response = await api(`/admin/users/${user._id}/reset-password`, {
+        method: 'POST',
+        body: JSON.stringify({ password: trimmedPassword })
+      });
+      window.alert(response.message || `Password updated for ${user.username}.`);
     } catch (err) {
-      alert(err.message);
+      window.alert(err.message);
     }
   }
 
@@ -43,7 +48,7 @@ export default function AdminUsers() {
     <div className="page-stack">
       <section className="panel page-heading">
         <h2>User management</h2>
-        <p>Review users, roles, balances, and referral earnings.</p>
+        <p>Review usernames, balances, and referral earnings without exposing user email addresses.</p>
       </section>
       {error && <div className="alert">{error}</div>}
       <section className="panel">
@@ -52,7 +57,7 @@ export default function AdminUsers() {
             <article className="admin-row" key={user._id}>
               <div>
                 <strong>{user.username}</strong>
-                <span>{user.email}</span>
+                <span>User account</span>
               </div>
               <div>
                 <strong>${user.balance.toFixed(2)}</strong>
@@ -71,7 +76,7 @@ export default function AdminUsers() {
                 <span>Pending withdrawal</span>
               </div>
               <div className="row-actions">
-                <button className="secondary" disabled={user.isOwner} onClick={() => forcePasswordReset(user)}>
+                <button className="secondary" disabled={user.isOwner} onClick={() => resetPassword(user)}>
                   Reset Password
                 </button>
                 <button className={user.isSuspended ? 'secondary' : 'danger'} disabled={user.isOwner} onClick={() => updateUser(user, { isSuspended: !user.isSuspended })}>
