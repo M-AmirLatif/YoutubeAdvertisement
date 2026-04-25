@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Copy, ExternalLink, Instagram, MessageCircle, Send, Share2 } from 'lucide-react';
 import { api } from '../api.js';
+import SocialAccountsSection from '../components/SocialAccountsSection.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 import { copyText } from '../utils/clipboard.js';
 
 const iconMap = {
@@ -12,9 +14,12 @@ const iconMap = {
 };
 
 export default function SocialLinks() {
+  const { user } = useAuth();
   const [socialLinks, setSocialLinks] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState('');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     api('/users/social-settings')
@@ -22,6 +27,30 @@ export default function SocialLinks() {
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
+
+  function updateLink(index, field, value) {
+    setSocialLinks((current) => current.map((item, itemIndex) => (
+      itemIndex === index ? { ...item, [field]: value } : item
+    )));
+  }
+
+  async function saveSocialLinks() {
+    setSaving(true);
+    setMessage('');
+    setError('');
+    try {
+      const response = await api('/admin/social-settings', {
+        method: 'PUT',
+        body: JSON.stringify({ socialLinks })
+      });
+      setSocialLinks(response.socialLinks || []);
+      setMessage('Social links updated.');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <div className="page-stack social-links-page">
@@ -31,6 +60,7 @@ export default function SocialLinks() {
           <p>Open each account directly to follow or subscribe, or copy the link and use it anywhere.</p>
         </div>
         {error && <div className="alert">{error}</div>}
+        {message && <div className="success">{message}</div>}
         {loading ? (
           <div className="empty-state">Loading social links...</div>
         ) : (
@@ -64,6 +94,16 @@ export default function SocialLinks() {
           </div>
         )}
       </section>
+      {user?.role === 'admin' && (
+        <SocialAccountsSection
+          title="Manage Social Accounts"
+          editable
+          values={socialLinks}
+          onChange={updateLink}
+          onSave={saveSocialLinks}
+          saving={saving}
+        />
+      )}
     </div>
   );
 }

@@ -4,26 +4,17 @@ import { api } from '../api.js';
 import StatCard from '../components/StatCard.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { copyText } from '../utils/clipboard.js';
-import SocialAccountsSection from '../components/SocialAccountsSection.jsx';
 
 export default function Dashboard() {
   const { user, setUser } = useAuth();
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
-  const [socialLinks, setSocialLinks] = useState([]);
-  const [socialFollowCompleted, setSocialFollowCompleted] = useState(Boolean(user?.socialFollowCompleted));
-  const [socialSaving, setSocialSaving] = useState(false);
   const referralLink = useMemo(() => `${window.location.origin}/signup?ref=${user?.referralCode || ''}`, [user]);
 
   useEffect(() => {
-    Promise.all([
-      api('/users/dashboard'),
-      api('/users/social-settings')
-    ]).then(([response, socialData]) => {
+    api('/users/dashboard').then((response) => {
       setData(response);
       setUser(response.user);
-      setSocialLinks(socialData.socialLinks || []);
-      setSocialFollowCompleted(Boolean(socialData.socialFollowCompleted || response.user?.socialFollowCompleted));
     }).catch((err) => setError(err.message));
   }, []);
 
@@ -31,20 +22,6 @@ export default function Dashboard() {
   const planFeesPaid = (data?.transactions || [])
     .filter((tx) => tx.type === 'deposit' && ['approved', 'paid'].includes(tx.status))
     .reduce((total, tx) => total + Number(tx.amount || 0), 0);
-
-  async function confirmSocialFollow() {
-    setSocialSaving(true);
-    setError('');
-    try {
-      const response = await api('/users/social-follow', { method: 'POST', body: JSON.stringify({ confirmed: true }) });
-      setSocialFollowCompleted(true);
-      setUser(response.user);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setSocialSaving(false);
-    }
-  }
 
   return (
     <div className="page-stack dashboard-page">
@@ -77,18 +54,6 @@ export default function Dashboard() {
           <button onClick={() => copyText(referralLink, 'Referral link copied')}><Copy size={18} />Copy Link</button>
         </div>
       </section>
-
-      <SocialAccountsSection title="Social Accounts" links={socialLinks}>
-        {!socialFollowCompleted && (
-          <div className="social-follow-gate">
-            <p>Follow all required social accounts before starting tasks or activating any plan.</p>
-            <button className="primary" type="button" onClick={confirmSocialFollow} disabled={socialSaving}>
-              {socialSaving ? 'Saving...' : 'I Followed All Accounts'}
-            </button>
-          </div>
-        )}
-      </SocialAccountsSection>
-
     </div>
   );
 }
