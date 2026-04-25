@@ -4,6 +4,7 @@ import User from '../models/User.js';
 import { requireAdmin, requireAuth } from '../middleware/auth.js';
 import AuditLog from '../models/AuditLog.js';
 import { MIN_WITHDRAWAL_AMOUNT, plans } from '../config/business.js';
+import { applyReferralPlanReward } from '../utils/referrals.js';
 
 const router = express.Router();
 
@@ -172,7 +173,15 @@ router.put('/admin/:id/status', requireAuth, requireAdmin, async (req, res) => {
 
   if (transaction.type === 'deposit' && !creditedStatuses.includes(previousStatus) && creditedStatuses.includes(status)) {
     const plan = plans.find((item) => item.name === transaction.plan);
-    if (plan) await User.findByIdAndUpdate(transaction.user, { activePlan: plan });
+    if (plan) {
+      await User.findByIdAndUpdate(transaction.user, { activePlan: plan });
+      await applyReferralPlanReward({
+        referredUserId: transaction.user,
+        planName: plan.name,
+        planPrice: plan.price,
+        transactionId: transaction._id
+      });
+    }
   }
 
   if (transaction.type === 'withdrawal' && previousStatus !== 'rejected' && status === 'rejected') {

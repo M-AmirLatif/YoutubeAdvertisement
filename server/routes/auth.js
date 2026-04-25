@@ -3,11 +3,9 @@ import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
-import Transaction from '../models/Transaction.js';
-import { makeReferralCode } from '../utils/youtube.js';
+import { generateUniqueReferralCode } from '../utils/referrals.js';
 import { requireAuth } from '../middleware/auth.js';
 import { rateLimit } from '../middleware/rateLimit.js';
-import { REFERRAL_LEVEL_1_BONUS, REFERRAL_LEVEL_2_BONUS } from '../config/business.js';
 import { sendResetEmail } from '../utils/email.js';
 
 const router = express.Router();
@@ -56,43 +54,15 @@ router.post('/register', authLimiter, async (req, res) => {
       return res.status(400).json({ message: 'Referral code was not found.' });
     }
     const passwordHash = await bcrypt.hash(password, 12);
+    const generatedReferralCode = await generateUniqueReferralCode();
     const user = await User.create({
       username,
       phone,
       email,
       passwordHash,
-      referralCode: makeReferralCode(username),
+      referralCode: generatedReferralCode,
       referredBy: referrer?._id || null
     });
-
-    if (referrer && REFERRAL_LEVEL_1_BONUS > 0) {
-      await User.findByIdAndUpdate(referrer._id, {
-        $inc: { balance: REFERRAL_LEVEL_1_BONUS, referralEarnings: REFERRAL_LEVEL_1_BONUS }
-      });
-      await Transaction.create({
-        user: referrer._id,
-        type: 'referral',
-        amount: REFERRAL_LEVEL_1_BONUS,
-        status: 'approved',
-        notes: `Level 1 referral bonus for inviting ${username}`
-      });
-    }
-
-    if (referrer?.referredBy && REFERRAL_LEVEL_2_BONUS > 0) {
-      const levelTwoReferrer = await User.findById(referrer.referredBy);
-      if (levelTwoReferrer && !levelTwoReferrer.isSuspended) {
-        await User.findByIdAndUpdate(levelTwoReferrer._id, {
-          $inc: { balance: REFERRAL_LEVEL_2_BONUS, referralEarnings: REFERRAL_LEVEL_2_BONUS }
-        });
-        await Transaction.create({
-          user: levelTwoReferrer._id,
-          type: 'referral',
-          amount: REFERRAL_LEVEL_2_BONUS,
-          status: 'approved',
-          notes: `Level 2 referral bonus from ${username} through ${referrer.username}`
-        });
-      }
-    }
 
     res.status(201).json({ token: signToken(user), user: publicUser(user) });
   } catch (error) {

@@ -1,3 +1,5 @@
+import crypto from 'crypto';
+
 export function extractYoutubeId(url) {
   try {
     const parsed = new URL(url);
@@ -11,7 +13,6 @@ export function extractYoutubeId(url) {
   return '';
 }
 
-export function makeReferralCode(username) {
-  const number = Math.floor(10000 + Math.random() * 90000);
-  return `USER-${number}`;
+export function makeReferralCode() {
+  return `REF-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
 }

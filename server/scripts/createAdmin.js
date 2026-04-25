@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
 import User from '../models/User.js';
-import { makeReferralCode } from '../utils/youtube.js';
+import { generateUniqueReferralCode } from '../utils/referrals.js';
 
 dotenv.config();
 
@@ -30,7 +30,7 @@ async function run() {
       passwordHash: await bcrypt.hash(password, 12),
       role: 'admin',
       isOwner: true,
-      referralCode: makeReferralCode(username)
+      referralCode: await generateUniqueReferralCode()
     });
     console.log(`Created admin: ${email}`);
   }
