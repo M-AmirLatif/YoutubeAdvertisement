@@ -3,6 +3,39 @@ import User from '../models/User.js';
 import { REFERRAL_LEVEL_1_BONUS, REFERRAL_LEVEL_2_BONUS } from '../config/business.js';
 import { makeReferralCode } from './youtube.js';
 
+export function buildPlanPurchaseReferralMatch(extra = {}) {
+  return {
+    $and: [
+      extra,
+      {
+        type: 'referral',
+        status: 'approved',
+        $or: [
+          { referralSource: 'plan_purchase' },
+          { notes: /purchasing/i }
+        ]
+      }
+    ]
+  };
+}
+
+export function buildLegacyReferralMatch(extra = {}) {
+  return {
+    $and: [
+      extra,
+      { type: 'referral', status: 'approved' },
+      {
+        $or: [
+          { referralSource: { $exists: false } },
+          { referralSource: '' },
+          { referralSource: null }
+        ]
+      },
+      { notes: { $not: /purchasing/i } }
+    ]
+  };
+}
+
 export async function generateUniqueReferralCode() {
   for (let attempts = 0; attempts < 20; attempts += 1) {
     const referralCode = makeReferralCode();
@@ -48,6 +81,7 @@ export async function applyReferralPlanReward({ referredUserId, planName, planPr
       type: 'referral',
       amount: REFERRAL_LEVEL_1_BONUS,
       status: 'approved',
+      referralSource: 'plan_purchase',
       notes: `Level 1 referral bonus for ${referredUser.username} purchasing ${planName}`
     });
   }
@@ -63,6 +97,7 @@ export async function applyReferralPlanReward({ referredUserId, planName, planPr
         type: 'referral',
         amount: REFERRAL_LEVEL_2_BONUS,
         status: 'approved',
+        referralSource: 'plan_purchase',
         notes: `Level 2 referral bonus from ${referredUser.username} through ${referrer.username} purchasing ${planName}`
       });
     }

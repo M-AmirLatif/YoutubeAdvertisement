@@ -15,6 +15,7 @@
     "preview": "vite preview --host 0.0.0.0",
     "seed": "node server/scripts/seed.js",
     "create-admin": "node server/scripts/createAdmin.js",
+    "cleanup-legacy-referrals": "node server/scripts/cleanupLegacyReferralRewards.js",
     "reset-password": "node server/scripts/resetPassword.js",
     "smoke-test": "node server/scripts/smokeTest.js",
     "access-check": "node server/scripts/accessControlCheck.js",

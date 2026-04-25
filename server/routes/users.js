@@ -5,6 +5,7 @@ import Progress from '../models/Progress.js';
 import Transaction from '../models/Transaction.js';
 import { requireAuth } from '../middleware/auth.js';
 import { getAppSettings } from '../utils/appSettings.js';
+import { buildPlanPurchaseReferralMatch } from '../utils/referrals.js';
 
 const router = express.Router();
 
@@ -38,21 +39,22 @@ router.get('/dashboard', requireAuth, async (req, res) => {
       {
         $match: {
           user: req.user._id,
-          type: { $in: ['earning', 'referral'] },
           status: 'approved',
           createdAt: { $gte: startOfDay }
+        }
+      },
+      {
+        $match: {
+          $or: [
+            { type: 'earning' },
+            buildPlanPurchaseReferralMatch().$and[1]
+          ]
         }
       },
       { $group: { _id: null, total: { $sum: '$amount' } } }
     ]),
     Transaction.aggregate([
-      {
-        $match: {
-          user: req.user._id,
-          type: 'referral',
-          status: 'approved'
-        }
-      },
+      { $match: buildPlanPurchaseReferralMatch({ user: req.user._id }) },
       { $group: { _id: null, total: { $sum: '$amount' } } }
     ])
   ]);
@@ -123,7 +125,10 @@ router.get('/team', requireAuth, async (req, res) => {
       level1: level1.length,
       level2: level2.length,
       total: level1.length + level2.length,
-      referralEarnings: req.user.referralEarnings || 0
+      referralEarnings: await Transaction.aggregate([
+        { $match: buildPlanPurchaseReferralMatch({ user: req.user._id }) },
+        { $group: { _id: null, total: { $sum: '$amount' } } }
+      ]).then((rows) => rows[0]?.total || 0)
     }
   });
 });

@@ -23,7 +23,7 @@ export default function Team() {
           <UsersRound size={70} />
           <span>Level 1 Members</span>
           <strong>{stats.level1}</strong>
-          <small>Direct Referrals (15% Comm)</small>
+          <small>Direct Referrals</small>
         </article>
         <article className="team-stat green">
           <Network size={70} />
@@ -35,7 +35,7 @@ export default function Team() {
           <WalletCards size={70} />
           <span>Referral Earnings</span>
           <strong>${Number(stats.referralEarnings || 0).toFixed(2)}</strong>
-          <small>Total Commission Earned</small>
+          <small>Total plan-purchase referral rewards</small>
         </article>
       </section>
 

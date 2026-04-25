@@ -10,6 +10,7 @@ const transactionSchema = new mongoose.Schema(
     walletAddress: { type: String, default: '' },
     network: { type: String, default: 'USDT-TRC20' },
     proof: { type: String, default: '' },
+    referralSource: { type: String, default: '' },
     reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     reviewedAt: { type: Date, default: null },
     notes: { type: String, default: '' }

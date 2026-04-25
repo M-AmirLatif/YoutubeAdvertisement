@@ -66,7 +66,7 @@ export default function Dashboard() {
 
       <section className="invite-panel" id="invite">
         <h2><Share2 size={30} fill="currentColor" />Invite & Earn</h2>
-        <p>Share your link with friends. Referral rewards are added automatically when they finish tasks.</p>
+        <p>Share your link with friends. Referral rewards are added only when a referred user buys a paid plan.</p>
         <div className="referral-summary">
           <span>Referral Earnings: <strong>${Number(stats.referralEarnings || user?.referralEarnings || 0).toFixed(4)}</strong></span>
           <span>Team: <strong>{stats.directReferrals || 0}</strong> direct / <strong>{stats.levelTwoReferrals || 0}</strong> level 2</span>
