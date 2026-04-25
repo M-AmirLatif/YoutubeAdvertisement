@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { CheckCircle2, PlayCircle, Maximize } from 'lucide-react';
+import { CheckCircle2, ExternalLink, PlayCircle, Maximize } from 'lucide-react';
 import { api } from '../api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import QuizTask from '../components/QuizTask.jsx';
@@ -20,6 +20,7 @@ function ensureYouTubeApi() {
 
 function VideoTask({ video, progress, onComplete }) {
   const containerRef = useRef(null);
+  const frameRef = useRef(null);
   const playerRef = useRef(null);
   const intervalRef = useRef(null);
   const lastSavedRef = useRef(progress?.watchedSeconds || 0);
@@ -63,12 +64,22 @@ function VideoTask({ video, progress, onComplete }) {
   }
 
   function toggleFullscreen() {
-    const frame = containerRef.current?.parentElement;
+    const frame = frameRef.current;
     if (!frame) return;
     if (!document.fullscreenElement) {
-      frame.requestFullscreen?.().catch(console.error);
+      const requestFullscreen =
+        frame.requestFullscreen
+        || frame.webkitRequestFullscreen
+        || frame.msRequestFullscreen
+        || frame.mozRequestFullScreen;
+      requestFullscreen?.call(frame);
     } else {
-      document.exitFullscreen?.();
+      const exitFullscreen =
+        document.exitFullscreen
+        || document.webkitExitFullscreen
+        || document.msExitFullscreen
+        || document.mozCancelFullScreen;
+      exitFullscreen?.call(document);
     }
   }
 
@@ -133,9 +144,9 @@ function VideoTask({ video, progress, onComplete }) {
 
   return (
     <article className="video-card">
-      <div className="video-frame">
+      <div className="video-frame" ref={frameRef}>
         <div ref={containerRef} />
-        <button className="fullscreen-btn" onClick={toggleFullscreen} aria-label="Fullscreen" title="Fullscreen">
+        <button type="button" className="fullscreen-btn" onClick={toggleFullscreen} aria-label="Fullscreen" title="Fullscreen">
           <Maximize size={18} />
         </button>
       </div>
@@ -143,7 +154,13 @@ function VideoTask({ video, progress, onComplete }) {
         <div>
           <h3>{video.title}</h3>
           <span>${video.reward.toFixed(2)} reward</span>
-          {!completed && <span>Watch the full video inside this website player to complete the task.</span>}
+          {!completed && <span>Watch the full video inside this website player to complete the task. You can open YouTube separately for comments or likes, but external watching does not auto-complete the task.</span>}
+        </div>
+        <div className="video-card-actions">
+          <a href={video.youtubeUrl} target="_blank" rel="noopener noreferrer" className="secondary video-youtube-link">
+            <ExternalLink size={16} />
+            Open on YouTube
+          </a>
         </div>
         <div className={completed ? 'status done' : 'status'}>
           {completed ? <CheckCircle2 size={18} /> : <PlayCircle size={18} />}

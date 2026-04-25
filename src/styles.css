@@ -628,6 +628,8 @@ main::-webkit-scrollbar-thumb { background: rgba(255,255,255,.2); border-radius:
 .video-meta { padding: 20px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
 .video-meta h3 { margin: 0 0 8px; font-size: 18px; color: white; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; }
 .video-meta span { color: var(--muted); font-size: 14px; }
+.video-card-actions { margin-top: 14px; }
+.video-youtube-link { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
 .video-card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }
 .status { display: inline-flex; width: fit-content; align-items: center; gap: 6px; margin-top: 12px; color: var(--orange); font-weight: 700; font-size: 14px; background: rgba(245, 158, 11, 0.1); padding: 6px 12px; border-radius: 8px; }
 .status.done { color: #34d399; background: rgba(16, 185, 129, 0.1); }
