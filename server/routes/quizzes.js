@@ -42,9 +42,10 @@ router.get('/', requireAuth, async (req, res) => {
 
 router.post('/', requireAuth, requireAdmin, async (req, res) => {
   try {
+    const reward = Number(req.body.reward);
     const quiz = await Quiz.create({
       title: String(req.body.title || '').trim(),
-      reward: Number(req.body.reward) || 0.5,
+      reward: Number.isFinite(reward) && reward >= 0 ? reward : 0.5,
       questions: req.body.questions || [],
       isActive: req.body.isActive !== false
     });
@@ -56,11 +57,12 @@ router.post('/', requireAuth, requireAdmin, async (req, res) => {
 
 router.put('/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
+    const reward = Number(req.body.reward);
     const quiz = await Quiz.findByIdAndUpdate(
       req.params.id, 
       {
         title: String(req.body.title || '').trim(),
-        reward: Number(req.body.reward) || 0.5,
+        reward: Number.isFinite(reward) && reward >= 0 ? reward : 0.5,
         questions: req.body.questions || [],
         isActive: req.body.isActive !== false
       },

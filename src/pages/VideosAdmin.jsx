@@ -4,6 +4,10 @@ import AdminQuizzes from '../components/AdminQuizzes.jsx';
 
 const emptyForm = { title: '', youtubeUrl: '', reward: 0.25, durationSeconds: 30, isActive: true };
 
+function formatReward(value) {
+  return Number(value || 0).toFixed(5).replace(/\.?0+$/, '');
+}
+
 export default function VideosAdmin() {
   const [videos, setVideos] = useState([]);
   const [form, setForm] = useState(emptyForm);
@@ -108,7 +112,7 @@ export default function VideosAdmin() {
           {message && <div className="success">{message}</div>}
           <label>Title<input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></label>
           <label>YouTube URL<input required value={form.youtubeUrl} onChange={(e) => setForm({ ...form, youtubeUrl: e.target.value })} /></label>
-          <label>Reward<input type="number" min="0" step="0.01" value={form.reward} onChange={(e) => setForm({ ...form, reward: Number(e.target.value) })} /></label>
+          <label>Reward<input type="number" min="0" step="0.00001" value={form.reward} onChange={(e) => setForm({ ...form, reward: e.target.value === '' ? '' : Number(e.target.value) })} /></label>
           <label>Duration seconds<input type="number" min="1" value={form.durationSeconds} onChange={(e) => setForm({ ...form, durationSeconds: Number(e.target.value) })} /></label>
           <div className="task-admin-controls section-span-full">
             <label className="task-admin-status">Status
@@ -134,7 +138,7 @@ export default function VideosAdmin() {
                 <span>{video.youtubeUrl}</span>
               </div>
               <div>
-                <strong>${Number(video.reward || 0).toFixed(2)}</strong>
+                <strong>${formatReward(video.reward || 0)}</strong>
                 <span>{video.durationSeconds}s required</span>
               </div>
               <em className={video.isActive ? 'status-pill active' : 'status-pill'}>{video.isActive ? 'Active' : 'Hidden'}</em>

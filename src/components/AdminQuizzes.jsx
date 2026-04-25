@@ -4,6 +4,10 @@ import { api } from '../api.js';
 const emptyQuestion = { questionText: '', options: ['', '', '', ''], correctOptionIndex: 0 };
 const emptyForm = { title: '', reward: 0.5, isActive: true, questions: [{ ...emptyQuestion }] };
 
+function formatReward(value) {
+  return Number(value || 0).toFixed(5).replace(/\.?0+$/, '');
+}
+
 export default function AdminQuizzes() {
   const [quizzes, setQuizzes] = useState([]);
   const [form, setForm] = useState(emptyForm);
@@ -123,7 +127,7 @@ export default function AdminQuizzes() {
           {error && <div className="alert" style={{ gridColumn: '1 / -1' }}>{error}</div>}
           {message && <div className="success" style={{ gridColumn: '1 / -1' }}>{message}</div>}
           <label>Title<input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="e.g. YouTube Marketing Quiz" /></label>
-          <label>Reward ($)<input type="number" min="0" step="0.01" value={form.reward} onChange={(e) => setForm({ ...form, reward: Number(e.target.value) })} /></label>
+          <label>Reward ($)<input type="number" min="0" step="0.00001" value={form.reward} onChange={(e) => setForm({ ...form, reward: e.target.value === '' ? '' : Number(e.target.value) })} /></label>
           
           <div className="nav-divider section-span-full" style={{ marginTop: '20px', marginBottom: '20px' }}>Questions</div>
           
@@ -185,7 +189,7 @@ export default function AdminQuizzes() {
                 <span>{quiz.questions.length} Questions</span>
               </div>
               <div>
-                <strong>${Number(quiz.reward || 0).toFixed(2)}</strong>
+                <strong>${formatReward(quiz.reward || 0)}</strong>
               </div>
               <em className={quiz.isActive ? 'status-pill active' : 'status-pill'}>{quiz.isActive ? 'Active' : 'Hidden'}</em>
               <div className="row-actions">
