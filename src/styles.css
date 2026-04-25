@@ -225,7 +225,7 @@ input:focus {
   overflow: hidden; 
   border-right: 1px solid var(--glass-border);
 }
-.sidebar-logo { display: grid; place-items: center; align-content: center; gap: 12px; text-align: center; padding: 30px; position: relative; }
+.sidebar-logo { display: grid; place-items: center; align-content: center; gap: 12px; text-align: center; padding: 30px 30px 42px; position: relative; }
 .sidebar-logo::after { content: ''; position: absolute; bottom: 0; left: 10%; right: 10%; height: 1px; background: linear-gradient(90deg, transparent, var(--line), transparent); }
 .sidebar-logo span { color: var(--muted); font-size: 14px; line-height: 1.4; max-width: 180px; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 600; }
 .sidebar-logo-mark-wrap { display: grid; justify-items: center; gap: 14px; }
@@ -737,7 +737,7 @@ select:disabled, button:disabled { opacity: .5; cursor: not-allowed; }
     align-content: center;
     gap: 8px;
     min-height: 104px;
-    padding: 16px 10px 14px;
+    padding: 18px 10px 22px;
     text-align: center;
   }
   .sidebar-logo::after { left: 12px; right: 12px; }
@@ -926,7 +926,7 @@ select:disabled, button:disabled { opacity: .5; cursor: not-allowed; }
     width: 100%;
   }
   .app-shell { grid-template-columns: 98px minmax(0, 1fr); }
-  .sidebar-logo { min-height: 90px; padding: 14px 8px 12px; }
+  .sidebar-logo { min-height: 90px; padding: 16px 8px 20px; }
   .sidebar-logo::after { left: 8px; right: 8px; }
   .sidebar-logo-mark { width: 72px; height: 38px; }
   .sidebar nav { padding: 10px 6px; gap: 5px; }
