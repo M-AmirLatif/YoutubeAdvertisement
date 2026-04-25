@@ -56,6 +56,7 @@ export default function SocialAccountsSection({ title = 'Social Accounts', links
               <div className="social-link-copy">
                 <strong>{item.name}</strong>
                 <span>{item.url}</span>
+                <em>Open account</em>
               </div>
               <ExternalLink size={16} />
             </a>

@@ -410,6 +410,8 @@ main::-webkit-scrollbar-thumb { background: rgba(255,255,255,.2); border-radius:
 .referral-copy-row button:hover { background: #e2e8f0; }
 .social-panel { display: grid; gap: 20px; }
 .social-links-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.social-link-card { text-decoration: none; cursor: pointer; }
+.social-link-copy em { display: inline-block; margin-top: 6px; font-style: normal; font-size: 0.82rem; font-weight: 700; color: #79a8ff; text-decoration: underline; text-underline-offset: 3px; }
 .social-link-card {
   display: grid;
   grid-template-columns: auto 1fr auto;
