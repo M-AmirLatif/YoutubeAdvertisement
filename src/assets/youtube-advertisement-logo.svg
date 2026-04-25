@@ -1,0 +1,28 @@
+<svg width="920" height="260" viewBox="0 0 920 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="playGrad" x1="62" y1="40" x2="288" y2="220" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF2A23"/>
+      <stop offset="1" stop-color="#C80E15"/>
+    </linearGradient>
+    <linearGradient id="arrowGrad" x1="205" y1="38" x2="388" y2="148" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF4338"/>
+      <stop offset="1" stop-color="#DB0E17"/>
+    </linearGradient>
+    <filter id="softShadow" x="0" y="0" width="410" height="260" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#6B0B11" flood-opacity="0.24"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#softShadow)">
+    <path d="M71 79C71 55.2 96.8 40.2 117.6 51.6L235.1 115.8C256.7 127.6 256.5 158.7 234.8 170.2L117.3 232.4C96.5 243.4 71 228.3 71 204.7V79Z" fill="url(#playGrad)"/>
+    <path d="M142 92.8L142.2 191.3L214.7 141.8L142 92.8Z" fill="white" fill-opacity="0.96"/>
+    <path d="M138 223C196.6 208.1 246.4 161.4 278.7 92.9L314.3 113.1C284.2 183.2 227 231.2 149.3 245L138 223Z" fill="#F4F4F4" fill-opacity="0.9"/>
+    <path d="M238 92C270.9 68.4 311 48.6 368.5 35L380.4 81.5L431 72.6L371.4 139.5L344.7 58.8L357.2 84.3C312.3 96.7 279.6 111.9 248.5 133.3L238 92Z" fill="url(#arrowGrad)"/>
+  </g>
+
+  <g transform="translate(420 46)">
+    <text x="0" y="78" font-family="Inter, Arial, sans-serif" font-size="92" font-weight="800" letter-spacing="-3" fill="#111111">You</text>
+    <text x="181" y="78" font-family="Inter, Arial, sans-serif" font-size="92" font-weight="800" letter-spacing="-3" fill="#F12B2F">Tube</text>
+    <text x="4" y="150" font-family="Inter, Arial, sans-serif" font-size="52" font-weight="500" letter-spacing="7" fill="#101010">ADVERTISEMENT</text>
+  </g>
+</svg>

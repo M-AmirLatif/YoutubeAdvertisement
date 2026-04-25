@@ -3,6 +3,8 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { BookOpen, ClipboardList, Clapperboard, Crown, Gauge, Home, LogOut, Menu, ReceiptText, UserCog, UsersRound, WalletCards, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { branding } from '../config/branding.js';
+import logo from '../assets/youtube-advertisement-logo.svg';
+import banner from '../assets/banner.png';
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: Home },
@@ -54,7 +56,6 @@ export default function Layout() {
   useEffect(() => {
     setMobileSidebarOpen(false);
   }, [location.pathname]);
-  const currentDescription = pageDescriptions[location.pathname] || 'Navigate and manage your workspace with a cleaner flow.';
   return (
     <div className="app-shell">
       <button
@@ -67,7 +68,7 @@ export default function Layout() {
         <div className="sidebar-logo">
           <div className="sidebar-logo-mark-wrap">
             <div className="sidebar-logo-mark">
-              <strong>{branding.shortName}</strong>
+              <img src={logo} alt="YouTube Advertisement" className="brand-logo-image" />
             </div>
             <div className="sidebar-brand-copy">
               <strong>{branding.appName}</strong>
@@ -113,19 +114,7 @@ export default function Layout() {
       </aside>
       <main>
         <header className="shell-header">
-          <div className="shell-header-main">
-            <div className="shell-header-logo">
-              <div className="shell-header-logo-mark">
-                <strong>{branding.shortName}</strong>
-              </div>
-            </div>
-            <div className="shell-header-copy">
-              <span className="shell-header-eyebrow">Platform Workspace</span>
-              <strong className="shell-header-brand-title">YouTube Automation</strong>
-              <h1>{currentLabel}</h1>
-              <p className="shell-header-tagline">{currentDescription}</p>
-            </div>
-          </div>
+          <img src={banner} alt={`${currentLabel} banner`} className="shell-banner-image" />
         </header>
         <header className="mobile-appbar">
           <button
