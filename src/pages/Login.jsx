@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, X } from 'lucide-react';
 import AuthFrame from '../components/AuthFrame.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { api } from '../api.js';
 
 const noAutofill = {
-  autoComplete: 'off',
+  autoComplete: 'username',
   autoCorrect: 'off',
   autoCapitalize: 'none',
   spellCheck: 'false',
@@ -37,7 +37,27 @@ export default function Login() {
     <AuthFrame title="Welcome Back" subtitle="" switchText="Don't have an account?" switchTo="/signup" switchLabel="Create Account">
       {error && <div className="alert">{error}</div>}
       <form onSubmit={submit} className="form" autoComplete="off" data-form-type="other">
-        <label>Email Address<input {...noAutofill} name="manual_login_email" type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></label>
+        <label>
+          <span className="label-row">Email Address</span>
+          <span className="password-field">
+            <input
+              {...noAutofill}
+              name="manual_login_email"
+              type="text"
+              inputMode="email"
+              required
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+            />
+            <button
+              type="button"
+              aria-label="Clear email"
+              onClick={() => setForm((current) => ({ ...current, email: '' }))}
+            >
+              <X size={18} />
+            </button>
+          </span>
+        </label>
         <label>
           <span className="label-row">Password</span>
           <span className="password-field">
