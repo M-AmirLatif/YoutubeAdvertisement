@@ -62,6 +62,7 @@ router.post('/:videoId', requireAuth, rateLimit({ windowMs: 60_000, max: 120, ke
       user: req.user._id,
       type: 'earning',
       amount: video.reward,
+      earningSource: 'video_task',
       status: 'approved',
       notes: `Watched: ${video.title}`
     });

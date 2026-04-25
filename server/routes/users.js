@@ -5,25 +5,28 @@ import Progress from '../models/Progress.js';
 import Transaction from '../models/Transaction.js';
 import { requireAuth } from '../middleware/auth.js';
 import { getAppSettings } from '../utils/appSettings.js';
+import { applyDailyPlanEarningIfDue, calculateDailyPlanAmount } from '../utils/planEarnings.js';
 import { buildPlanPurchaseReferralMatch } from '../utils/referrals.js';
 
 const router = express.Router();
 
 router.get('/dashboard', requireAuth, async (req, res) => {
+  const freshUser = await applyDailyPlanEarningIfDue(req.user);
+  const user = freshUser || req.user;
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
 
-  const [completedToday, totalCompleted, transactions, directReferrals, levelTwoReferrals, todaysEarnings, referralEarnings] = await Promise.all([
+  const [completedToday, totalCompleted, transactions, directReferrals, levelTwoReferrals, taskEarningsToday, planEarningsToday, referralEarningsToday, referralEarnings] = await Promise.all([
     Progress.countDocuments({
-      user: req.user._id,
+      user: user._id,
       completed: true,
       completedAt: { $gte: startOfDay }
     }),
-    Progress.countDocuments({ user: req.user._id, completed: true }),
-    Transaction.find({ user: req.user._id }).sort({ createdAt: -1 }).limit(8),
-    User.countDocuments({ referredBy: req.user._id }),
+    Progress.countDocuments({ user: user._id, completed: true }),
+    Transaction.find({ user: user._id }).sort({ createdAt: -1 }).limit(8),
+    User.countDocuments({ referredBy: user._id }),
     User.aggregate([
-      { $match: { referredBy: req.user._id } },
+      { $match: { referredBy: user._id } },
       {
         $lookup: {
           from: 'users',
@@ -38,41 +41,62 @@ router.get('/dashboard', requireAuth, async (req, res) => {
     Transaction.aggregate([
       {
         $match: {
-          user: req.user._id,
+          user: user._id,
           status: 'approved',
+          type: 'earning',
+          earningSource: 'video_task',
           createdAt: { $gte: startOfDay }
-        }
-      },
-      {
-        $match: {
-          $or: [
-            { type: 'earning' },
-            buildPlanPurchaseReferralMatch().$and[1]
-          ]
         }
       },
       { $group: { _id: null, total: { $sum: '$amount' } } }
     ]),
     Transaction.aggregate([
-      { $match: buildPlanPurchaseReferralMatch({ user: req.user._id }) },
+      {
+        $match: {
+          user: user._id,
+          type: 'earning',
+          earningSource: 'daily_plan',
+          status: 'approved',
+          createdAt: { $gte: startOfDay }
+        }
+      },
+      { $group: { _id: null, total: { $sum: '$amount' } } }
+    ]),
+    Transaction.aggregate([
+      { $match: buildPlanPurchaseReferralMatch({ user: user._id, createdAt: { $gte: startOfDay } }) },
+      { $group: { _id: null, total: { $sum: '$amount' } } }
+    ]),
+    Transaction.aggregate([
+      { $match: buildPlanPurchaseReferralMatch({ user: user._id }) },
       { $group: { _id: null, total: { $sum: '$amount' } } }
     ])
   ]);
 
+  const todayTaskEarnings = taskEarningsToday[0]?.total || 0;
+  const todayPlanEarnings = planEarningsToday[0]?.total || 0;
+  const todayReferralEarnings = referralEarningsToday[0]?.total || 0;
+  const todayTotalEarnings = todayTaskEarnings + todayPlanEarnings + todayReferralEarnings;
+
   res.json({
     user: {
-      ...req.user.toObject(),
-      todayEarnings: todaysEarnings[0]?.total || 0,
-      referralEarnings: referralEarnings[0]?.total || req.user.referralEarnings || 0
+      ...user.toObject(),
+      todayEarnings: todayTotalEarnings,
+      referralEarnings: referralEarnings[0]?.total || user.referralEarnings || 0
     },
     stats: {
       completedToday,
       totalCompleted,
       directReferrals,
       levelTwoReferrals: levelTwoReferrals[0]?.total || 0,
-      dailyLimit: req.user.activePlan.dailyLimit,
-      progressPercent: Math.min(100, Math.round((completedToday / req.user.activePlan.dailyLimit) * 100)),
-      referralEarnings: referralEarnings[0]?.total || req.user.referralEarnings || 0
+      dailyLimit: user.activePlan.dailyLimit,
+      progressPercent: Math.min(100, Math.round((completedToday / user.activePlan.dailyLimit) * 100)),
+      referralEarnings: referralEarnings[0]?.total || user.referralEarnings || 0,
+      taskEarningsToday: todayTaskEarnings,
+      planEarningsToday: todayPlanEarnings,
+      referralEarningsToday: todayReferralEarnings,
+      totalEarningsToday: todayTotalEarnings,
+      dailyPlanAmount: calculateDailyPlanAmount(user.activePlan),
+      activePlanName: user.activePlan?.name || 'Free'
     },
     transactions
   });

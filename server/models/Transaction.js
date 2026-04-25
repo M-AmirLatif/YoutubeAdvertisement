@@ -6,6 +6,7 @@ const transactionSchema = new mongoose.Schema(
     type: { type: String, enum: ['deposit', 'withdrawal', 'referral', 'earning'], required: true },
     amount: { type: Number, required: true },
     status: { type: String, enum: ['pending', 'approved', 'rejected', 'paid'], default: 'pending' },
+    earningSource: { type: String, default: '' },
     plan: { type: String, default: '' },
     walletAddress: { type: String, default: '' },
     network: { type: String, default: 'USDT-TRC20' },

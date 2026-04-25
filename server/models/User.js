@@ -18,6 +18,7 @@ const userSchema = new mongoose.Schema(
     referralPlanRewardTransaction: { type: mongoose.Schema.Types.ObjectId, ref: 'Transaction', default: null },
     balance: { type: Number, default: 0 },
     todayEarnings: { type: Number, default: 0 },
+    lastDailyPlanEarningAt: { type: Date, default: null },
     totalWithdrawn: { type: Number, default: 0 },
     referralEarnings: { type: Number, default: 0 },
     socialFollowCompleted: { type: Boolean, default: false },

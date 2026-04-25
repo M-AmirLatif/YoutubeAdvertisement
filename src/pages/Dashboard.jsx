@@ -18,7 +18,19 @@ export default function Dashboard() {
     }).catch((err) => setError(err.message));
   }, []);
 
-  const stats = data?.stats || { completedToday: 0, totalCompleted: 0, dailyLimit: user?.activePlan?.dailyLimit || 5, progressPercent: 0, referralEarnings: 0 };
+  const stats = data?.stats || {
+    completedToday: 0,
+    totalCompleted: 0,
+    dailyLimit: user?.activePlan?.dailyLimit || 5,
+    progressPercent: 0,
+    referralEarnings: 0,
+    taskEarningsToday: 0,
+    planEarningsToday: 0,
+    referralEarningsToday: 0,
+    totalEarningsToday: 0,
+    dailyPlanAmount: 0,
+    activePlanName: user?.activePlan?.name || 'Free'
+  };
   const planFeesPaid = (data?.transactions || [])
     .filter((tx) => tx.type === 'deposit' && ['approved', 'paid'].includes(tx.status))
     .reduce((total, tx) => total + Number(tx.amount || 0), 0);
@@ -27,10 +39,22 @@ export default function Dashboard() {
     <div className="page-stack dashboard-page">
       {error && <div className="alert">{error}</div>}
       <section className="dashboard-stats-grid">
-        <StatCard label="Withdrawable Balance" value={`$${(user?.balance || 0).toFixed(4)}`} icon={Wallet} />
-        <StatCard label="Today's Earning" value={`$${(user?.todayEarnings || 0).toFixed(4)}`} tone="green" icon={LineChart} />
+        <StatCard label="Withdrawable Balance" value={`$${(user?.balance || 0).toFixed(4)}`} hint={`${stats.activePlanName} plan`} icon={Wallet} />
+        <StatCard
+          label="Today's Earnings"
+          value={`$${Number(stats.totalEarningsToday || user?.todayEarnings || 0).toFixed(4)}`}
+          hint={`Plan $${Number(stats.planEarningsToday || 0).toFixed(4)} + Tasks $${Number(stats.taskEarningsToday || 0).toFixed(4)} + Referral $${Number(stats.referralEarningsToday || 0).toFixed(4)}`}
+          tone="green"
+          icon={LineChart}
+        />
         <StatCard label="Referral Rewards" value={`$${Number(stats.referralEarnings || user?.referralEarnings || 0).toFixed(4)}`} tone="purple" icon={Trophy} />
-        <StatCard label="Daily Tasks" value={`${stats.completedToday || 0} / ${stats.dailyLimit || 0}`} tone="cyan" icon={CheckSquare} />
+        <StatCard
+          label="Daily Plan Income"
+          value={`$${Number(stats.dailyPlanAmount || 0).toFixed(4)}`}
+          hint={`1% daily from ${stats.activePlanName} plan`}
+          tone="cyan"
+          icon={CheckSquare}
+        />
       </section>
 
       <section className="history-section">
@@ -38,6 +62,7 @@ export default function Dashboard() {
         <div className="history-cards">
           <StatCard label="Total Plan Fees Paid" value={`$${planFeesPaid.toFixed(2)}`} tone="gray" icon={ReceiptText} />
           <StatCard label="Total Withdrawn" value={`$${(user?.totalWithdrawn || 0).toFixed(2)}`} tone="red" icon={RefreshCcw} />
+          <StatCard label="Daily Tasks" value={`${stats.completedToday || 0} / ${stats.dailyLimit || 0}`} tone="blue" icon={CheckSquare} />
         </div>
       </section>
 

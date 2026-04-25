@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import { generateUniqueReferralCode } from '../utils/referrals.js';
+import { applyDailyPlanEarningIfDue } from '../utils/planEarnings.js';
 import { requireAuth } from '../middleware/auth.js';
 import { rateLimit } from '../middleware/rateLimit.js';
 import { sendResetEmail } from '../utils/email.js';
@@ -80,7 +81,8 @@ router.post('/login', authLimiter, async (req, res) => {
     const valid = await bcrypt.compare(password || '', user.passwordHash);
     if (!valid) return res.status(401).json({ message: 'Invalid credentials.' });
 
-    res.json({ token: signToken(user), user: publicUser(user) });
+    const hydratedUser = await applyDailyPlanEarningIfDue(user);
+    res.json({ token: signToken(user), user: publicUser(hydratedUser || user) });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -138,8 +140,9 @@ router.post('/reset-password', authLimiter, async (req, res) => {
   }
 });
 
-router.get('/me', requireAuth, (req, res) => {
-  res.json({ user: req.user });
+router.get('/me', requireAuth, async (req, res) => {
+  const user = await applyDailyPlanEarningIfDue(req.user);
+  res.json({ user: publicUser(user || req.user) });
 });
 
 export default router;
