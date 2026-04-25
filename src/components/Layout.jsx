@@ -86,10 +86,6 @@ export default function Layout() {
             <div className="sidebar-logo-mark">
               <img src={logo} alt="YouTube Advertisement" className="brand-logo-image" />
             </div>
-            <div className="sidebar-brand-copy">
-              <strong>{branding.appName}</strong>
-              <span>{branding.authTagline}</span>
-            </div>
           </div>
           <button
             type="button"
