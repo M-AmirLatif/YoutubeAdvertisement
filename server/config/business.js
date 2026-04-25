@@ -9,15 +9,15 @@ export const MIN_WATCH_SECONDS = Number(process.env.MIN_WATCH_SECONDS || 20);
 
 export const plans = [
   { name: 'Free', price: 0, dailyLimit: 10, rewardPerVideo: 0.1 },
-  { name: 'Starter', price: 20, dailyLimit: 20, rewardPerVideo: 0.2 },
-  { name: 'Basic', price: 50, dailyLimit: 50, rewardPerVideo: 0.5 },
+  { name: 'Starter', price: 20, dailyLimit: 20, rewardPerVideo: 1 },
+  { name: 'Basic', price: 50, dailyLimit: 50, rewardPerVideo: 1 },
   { name: 'Standard', price: 100, dailyLimit: 100, rewardPerVideo: 1 },
-  { name: 'Gold', price: 150, dailyLimit: 150, rewardPerVideo: 1.5 },
-  { name: 'Advanced', price: 200, dailyLimit: 200, rewardPerVideo: 2 },
-  { name: 'Premium', price: 350, dailyLimit: 350, rewardPerVideo: 3.5 },
-  { name: 'Enterprise', price: 500, dailyLimit: 500, rewardPerVideo: 5 },
-  { name: 'Global', price: 750, dailyLimit: 750, rewardPerVideo: 7.5 },
-  { name: 'Platinum', price: 1000, dailyLimit: 1000, rewardPerVideo: 10 },
-  { name: 'Ultimate', price: 1500, dailyLimit: 1500, rewardPerVideo: 15 },
-  { name: 'Infinity', price: 2000, dailyLimit: 2000, rewardPerVideo: 20 }
+  { name: 'Gold', price: 150, dailyLimit: 150, rewardPerVideo: 1 },
+  { name: 'Advanced', price: 200, dailyLimit: 200, rewardPerVideo: 1 },
+  { name: 'Premium', price: 350, dailyLimit: 350, rewardPerVideo: 1 },
+  { name: 'Enterprise', price: 500, dailyLimit: 500, rewardPerVideo: 1 },
+  { name: 'Global', price: 750, dailyLimit: 750, rewardPerVideo: 1 },
+  { name: 'Platinum', price: 1000, dailyLimit: 1000, rewardPerVideo: 1 },
+  { name: 'Ultimate', price: 1500, dailyLimit: 1500, rewardPerVideo: 1 },
+  { name: 'Infinity', price: 2000, dailyLimit: 2000, rewardPerVideo: 1 }
 ];

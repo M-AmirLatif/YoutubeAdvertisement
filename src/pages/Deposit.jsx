@@ -25,7 +25,7 @@ export default function Deposit() {
 
   const displayPlans = useMemo(() => plans.map((plan) => ({
     ...plan,
-    dailyPercent: plan.price === 0 ? '$0.10 Daily' : `${Math.max(1, plan.rewardPerVideo).toFixed(2)}% Daily`
+    dailyPercent: plan.price === 0 ? '$0.10 Daily' : '1.00% Daily'
   })), [plans]);
 
   useEffect(() => {
