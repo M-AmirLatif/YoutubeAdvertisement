@@ -1,9 +1,42 @@
 import { useEffect, useMemo, useState } from 'react';
-import { CheckSquare, Copy, LineChart, ReceiptText, RefreshCcw, Share2, Wallet, Trophy } from 'lucide-react';
+import { CheckSquare, Copy, ExternalLink, Instagram, LineChart, MessageCircle, ReceiptText, RefreshCcw, Send, Share2, Wallet, Trophy } from 'lucide-react';
 import { api } from '../api.js';
 import StatCard from '../components/StatCard.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { copyText } from '../utils/clipboard.js';
+
+const socialLinks = [
+  {
+    name: 'WhatsApp Group',
+    href: 'https://chat.whatsapp.com/GhNPmGwxRoKLct8r9OUN07',
+    description: 'Join the main community group.',
+    icon: MessageCircle
+  },
+  {
+    name: 'WhatsApp Channel',
+    href: 'https://whatsapp.com/channel/0029Vb7wkHe9hXEzePifXq43',
+    description: 'Follow Zaak Academy updates.',
+    icon: MessageCircle
+  },
+  {
+    name: 'Instagram',
+    href: 'https://www.instagram.com/afaqllc1?igsh=dHp5aGJ2M2ZuMXV2',
+    description: 'Follow the Instagram account.',
+    icon: Instagram
+  },
+  {
+    name: 'X / Twitter',
+    href: 'https://x.com/mr_afaq295',
+    description: 'See updates on X.',
+    icon: ExternalLink
+  },
+  {
+    name: 'Telegram',
+    href: 'https://t.me/Mrafaqllcc',
+    description: 'Join the Telegram channel.',
+    icon: Send
+  }
+];
 
 export default function Dashboard() {
   const { user, setUser } = useAuth();
@@ -52,6 +85,32 @@ export default function Dashboard() {
         <div className="referral-copy-row">
           <div>{referralLink}</div>
           <button onClick={() => copyText(referralLink, 'Referral link copied')}><Copy size={18} />Copy Link</button>
+        </div>
+      </section>
+
+      <section className="panel social-panel">
+        <div className="section-title">
+          <span>Social Accounts</span>
+        </div>
+        <div className="social-links-grid">
+          {socialLinks.map((item) => (
+            <a
+              key={item.name}
+              href={item.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-link-card"
+            >
+              <div className="social-link-icon">
+                <item.icon size={20} />
+              </div>
+              <div className="social-link-copy">
+                <strong>{item.name}</strong>
+                <span>{item.description}</span>
+              </div>
+              <ExternalLink size={16} />
+            </a>
+          ))}
         </div>
       </section>
 
