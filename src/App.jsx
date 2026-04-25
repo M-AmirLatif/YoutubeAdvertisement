@@ -11,6 +11,7 @@ import Withdraw from './pages/Withdraw.jsx';
 import Team from './pages/Team.jsx';
 import Profile from './pages/Profile.jsx';
 import Courses from './pages/Courses.jsx';
+import SocialLinks from './pages/SocialLinks.jsx';
 import VideosAdmin from './pages/VideosAdmin.jsx';
 import AdminCourses from './pages/AdminCourses.jsx';
 import AdminDashboard from './pages/AdminDashboard.jsx';
@@ -53,6 +54,7 @@ function AppRoutes() {
         <Route path="withdraw" element={<Withdraw />} />
         <Route path="team" element={<Team />} />
         <Route path="courses" element={<Courses />} />
+        <Route path="social-links" element={<SocialLinks />} />
         <Route path="profile" element={<Profile />} />
         <Route path="admin" element={<AdminOnly><AdminDashboard /></AdminOnly>} />
         <Route path="admin/videos" element={<AdminOnly><VideosAdmin /></AdminOnly>} />
