@@ -3,7 +3,7 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { BookOpen, ClipboardList, Clapperboard, Crown, Gauge, Home, LogOut, Menu, ReceiptText, UserCog, UsersRound, WalletCards, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { branding } from '../config/branding.js';
-import logo from '../assets/Gemini_Generated_Image_tydm3ktydm3ktydm.png';
+import logo from '../assets/logo.png';
 import banner from '../assets/banner.png';
 
 const navItems = [
