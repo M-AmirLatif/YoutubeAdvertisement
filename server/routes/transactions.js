@@ -49,6 +49,9 @@ router.get('/admin/all', requireAuth, requireAdmin, async (_req, res) => {
 });
 
 router.post('/deposit', requireAuth, async (req, res) => {
+  if (!req.user.socialFollowCompleted) {
+    return res.status(403).json({ message: 'Follow all required social accounts before activating a plan.' });
+  }
   const { planName, walletAddress, network, proof } = req.body;
   const plan = plans.find((item) => item.name === planName);
   const allowedNetworks = validNetworks();

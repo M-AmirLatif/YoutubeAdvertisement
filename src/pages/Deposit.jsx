@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Copy } from 'lucide-react';
 import { api } from '../api.js';
 import { copyText } from '../utils/clipboard.js';
+import SocialUnlockPanel from '../components/SocialUnlockPanel.jsx';
 
 export default function Deposit() {
   const [plans, setPlans] = useState([]);
@@ -14,6 +15,8 @@ export default function Deposit() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [transactions, setTransactions] = useState([]);
+  const [socialLinks, setSocialLinks] = useState([]);
+  const [socialFollowCompleted, setSocialFollowCompleted] = useState(false);
 
   const enabledNetworks = Object.keys(depositWallets).filter((key) => depositWallets[key] || depositWallet);
   const networkOptions = enabledNetworks.length ? enabledNetworks : ['USDT-TRC20', 'USDT-BEP20'];
@@ -27,9 +30,12 @@ export default function Deposit() {
 
   useEffect(() => {
     Promise.all([
+      api('/users/social-settings'),
       api('/transactions/plans'),
       api('/transactions')
-    ]).then(([planData, txData]) => {
+    ]).then(([socialData, planData, txData]) => {
+      setSocialLinks(socialData.socialLinks || []);
+      setSocialFollowCompleted(Boolean(socialData.socialFollowCompleted));
       setPlans(planData.plans);
       setDepositWallet(planData.depositWallet);
       setDepositWallets(planData.depositWallets || {});
@@ -61,6 +67,18 @@ export default function Deposit() {
   }
 
   return (
+    !socialFollowCompleted ? (
+      <div className="funds-layout">
+        <section style={{ gridColumn: '1 / -1' }}>
+          <SocialUnlockPanel
+            title="Follow Social Accounts"
+            message="Follow all required social accounts before activating any plan on the website."
+            links={socialLinks}
+            onUnlocked={() => window.location.reload()}
+          />
+        </section>
+      </div>
+    ) : (
     <div className="funds-layout">
       <section>
         <h1 className="page-title">Add Funds</h1>
@@ -130,5 +148,6 @@ export default function Deposit() {
         </div>
       </section>
     </div>
+    )
   );
 }

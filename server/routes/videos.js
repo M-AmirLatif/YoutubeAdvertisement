@@ -47,6 +47,9 @@ function normalizeVideoPayload(body, partial = false) {
 }
 
 router.get('/', requireAuth, async (req, res) => {
+  if (!req.user.socialFollowCompleted) {
+    return res.status(403).json({ message: 'Follow all required social accounts before starting tasks.' });
+  }
   const videos = await Video.find({ isActive: true }).sort({ createdAt: -1 });
   const progress = await Progress.find({ user: req.user._id });
   res.json({ videos, progress });

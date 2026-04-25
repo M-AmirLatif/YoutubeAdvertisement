@@ -3,6 +3,7 @@ import { CheckCircle2, PlayCircle, Maximize } from 'lucide-react';
 import { api } from '../api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import QuizTask from '../components/QuizTask.jsx';
+import SocialUnlockPanel from '../components/SocialUnlockPanel.jsx';
 
 function ensureYouTubeApi() {
   if (window.YT?.Player) return Promise.resolve(window.YT);
@@ -127,17 +128,26 @@ export default function Tasks() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('video');
+  const [socialLinks, setSocialLinks] = useState([]);
+  const [socialFollowCompleted, setSocialFollowCompleted] = useState(Boolean(user?.socialFollowCompleted));
 
   useEffect(() => {
-    Promise.all([
-      api('/videos'),
-      api('/quizzes')
-    ]).then(([videoData, quizData]) => {
-      setVideos(videoData.videos);
-      setProgressByVideo(Object.fromEntries(videoData.progress.map((item) => [item.video, item])));
-      
-      setQuizzes(quizData.quizzes || []);
-      setProgressByQuiz(Object.fromEntries((quizData.progress || []).map((item) => [item.quiz, item])));
+    api('/users/social-settings').then((socialData) => {
+      setSocialLinks(socialData.socialLinks || []);
+      setSocialFollowCompleted(Boolean(socialData.socialFollowCompleted));
+      if (!socialData.socialFollowCompleted) {
+        setLoading(false);
+        return;
+      }
+      return Promise.all([
+        api('/videos'),
+        api('/quizzes')
+      ]).then(([videoData, quizData]) => {
+        setVideos(videoData.videos);
+        setProgressByVideo(Object.fromEntries(videoData.progress.map((item) => [item.video, item])));
+        setQuizzes(quizData.quizzes || []);
+        setProgressByQuiz(Object.fromEntries((quizData.progress || []).map((item) => [item.quiz, item])));
+      });
     }).catch((err) => setError(err.message)).finally(() => setLoading(false));
   }, []);
 
@@ -153,6 +163,19 @@ export default function Tasks() {
   const dailyLimit = user?.activePlan?.dailyLimit || videos.length || 0;
   const displayCompleted = Math.min(dailyLimit, completedVideos);
   const progressPercent = dailyLimit ? (displayCompleted / dailyLimit) * 100 : 0;
+
+  if (!socialFollowCompleted) {
+    return (
+      <div className="tasks-page">
+        <SocialUnlockPanel
+          title="Follow Social Accounts"
+          message="Follow all required social accounts before starting video tasks or MCQ quizzes."
+          links={socialLinks}
+          onUnlocked={() => window.location.reload()}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="tasks-page">

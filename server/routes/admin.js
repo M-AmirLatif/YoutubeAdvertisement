@@ -6,6 +6,7 @@ import Progress from '../models/Progress.js';
 import Transaction from '../models/Transaction.js';
 import AuditLog from '../models/AuditLog.js';
 import { requireAdmin, requireAuth } from '../middleware/auth.js';
+import { getAppSettings } from '../utils/appSettings.js';
 
 const router = express.Router();
 
@@ -45,6 +46,40 @@ router.get('/dashboard', async (_req, res) => {
       totals: Object.fromEntries(totals.map((item) => [item._id, item.amount]))
     }
   });
+});
+
+router.get('/social-settings', async (_req, res) => {
+  const settings = await getAppSettings();
+  res.json({ socialLinks: settings.socialLinks });
+});
+
+router.put('/social-settings', async (req, res) => {
+  const nextLinks = Array.isArray(req.body.socialLinks) ? req.body.socialLinks : [];
+  const socialLinks = nextLinks
+    .map((item, index) => ({
+      platform: String(item.platform || `link-${index + 1}`).trim(),
+      name: String(item.name || '').trim(),
+      url: String(item.url || '').trim()
+    }))
+    .filter((item) => item.name && item.url);
+
+  if (!socialLinks.length) {
+    return res.status(400).json({ message: 'Add at least one social account link.' });
+  }
+
+  const settings = await getAppSettings();
+  settings.socialLinks = socialLinks;
+  await settings.save();
+
+  await AuditLog.create({
+    actor: req.user._id,
+    action: 'settings.socialLinks.update',
+    targetType: 'AppSettings',
+    targetId: settings._id,
+    details: { socialLinks }
+  });
+
+  res.json({ socialLinks: settings.socialLinks });
 });
 
 router.get('/users', async (_req, res) => {

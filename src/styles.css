@@ -447,6 +447,35 @@ main::-webkit-scrollbar-thumb { background: rgba(255,255,255,.2); border-radius:
   font-size: 13px;
   line-height: 1.4;
 }
+.social-follow-gate {
+  display: grid;
+  gap: 14px;
+  padding-top: 4px;
+}
+.social-follow-gate p {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 15px;
+  line-height: 1.5;
+}
+.social-follow-gate .primary {
+  width: fit-content;
+  min-width: 220px;
+}
+.social-admin-grid { display: grid; gap: 16px; }
+.social-admin-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.2fr);
+  gap: 16px;
+}
+.social-admin-row label {
+  display: grid;
+  gap: 8px;
+  color: #e2e8f0;
+  font-size: 14px;
+  font-weight: 600;
+}
+.social-admin-actions { display: flex; justify-content: flex-end; }
 
 .page-title { margin: 0 0 16px; font-size: 42px; background: linear-gradient(to right, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 .sub-title { margin: 0 0 32px; font-size: 20px; font-weight: 400; color: var(--muted); }
@@ -814,6 +843,7 @@ select:disabled, button:disabled { opacity: .5; cursor: not-allowed; }
   .wallet-box button { font-size: 14px; padding: 8px 12px; }
   .social-links-grid { grid-template-columns: 1fr; gap: 12px; }
   .social-link-card { padding: 16px; gap: 12px; }
+  .social-admin-row { grid-template-columns: 1fr; gap: 12px; }
   .fund-plan-card { min-height: 104px; padding: 16px 12px; border-radius: 14px; }
   .fund-plan-card strong { font-size: 24px; }
   .fund-plan-card span { font-size: 13px; }
@@ -918,6 +948,16 @@ select:disabled, button:disabled { opacity: .5; cursor: not-allowed; }
   }
   .social-link-copy strong { font-size: 14px; }
   .social-link-copy span { font-size: 12px; }
+  .social-follow-gate .primary {
+    width: 100%;
+    min-width: 0;
+  }
+  .social-admin-actions {
+    justify-content: stretch;
+  }
+  .social-admin-actions .primary {
+    width: 100%;
+  }
   .fund-plan-card { min-height: 92px; padding: 14px 10px; }
   .fund-plan-card strong { font-size: 21px; }
   .balance-panel { padding: 18px 14px; }

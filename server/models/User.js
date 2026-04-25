@@ -17,6 +17,8 @@ const userSchema = new mongoose.Schema(
     todayEarnings: { type: Number, default: 0 },
     totalWithdrawn: { type: Number, default: 0 },
     referralEarnings: { type: Number, default: 0 },
+    socialFollowCompleted: { type: Boolean, default: false },
+    socialFollowCompletedAt: { type: Date, default: null },
     activePlan: {
       name: { type: String, default: 'Starter' },
       price: { type: Number, default: 0 },

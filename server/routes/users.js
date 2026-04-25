@@ -4,6 +4,7 @@ import User from '../models/User.js';
 import Progress from '../models/Progress.js';
 import Transaction from '../models/Transaction.js';
 import { requireAuth } from '../middleware/auth.js';
+import { getAppSettings } from '../utils/appSettings.js';
 
 const router = express.Router();
 
@@ -72,6 +73,32 @@ router.get('/dashboard', requireAuth, async (req, res) => {
       referralEarnings: referralEarnings[0]?.total || req.user.referralEarnings || 0
     },
     transactions
+  });
+});
+
+router.get('/social-settings', requireAuth, async (req, res) => {
+  const settings = await getAppSettings();
+  res.json({
+    socialLinks: settings.socialLinks,
+    socialFollowCompleted: Boolean(req.user.socialFollowCompleted),
+    socialFollowCompletedAt: req.user.socialFollowCompletedAt || null
+  });
+});
+
+router.post('/social-follow', requireAuth, async (req, res) => {
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      socialFollowCompleted: true,
+      socialFollowCompletedAt: new Date()
+    },
+    { new: true }
+  ).select('-passwordHash');
+
+  res.json({
+    user,
+    socialFollowCompleted: true,
+    socialFollowCompletedAt: user.socialFollowCompletedAt
   });
 });
 

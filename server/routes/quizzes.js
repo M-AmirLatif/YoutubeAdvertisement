@@ -18,6 +18,9 @@ router.get('/admin/all', requireAuth, requireAdmin, async (req, res) => {
 
 router.get('/', requireAuth, async (req, res) => {
   try {
+    if (!req.user.socialFollowCompleted) {
+      return res.status(403).json({ message: 'Follow all required social accounts before starting tasks.' });
+    }
     const quizzes = await Quiz.find({ isActive: true }).sort({ createdAt: -1 });
     const progress = await QuizProgress.find({ user: req.user._id });
     
@@ -83,6 +86,9 @@ router.delete('/:id', requireAuth, requireAdmin, async (req, res) => {
 
 router.post('/:id/submit', requireAuth, async (req, res) => {
   try {
+    if (!req.user.socialFollowCompleted) {
+      return res.status(403).json({ message: 'Follow all required social accounts before starting tasks.' });
+    }
     const quiz = await Quiz.findById(req.params.id);
     if (!quiz || !quiz.isActive) {
       return res.status(404).json({ message: 'Quiz not found or inactive' });
@@ -134,6 +140,9 @@ router.post('/:id/submit', requireAuth, async (req, res) => {
 
 router.post('/:id/verify', requireAuth, async (req, res) => {
   try {
+    if (!req.user.socialFollowCompleted) {
+      return res.status(403).json({ message: 'Follow all required social accounts before starting tasks.' });
+    }
     const quiz = await Quiz.findById(req.params.id);
     if (!quiz) return res.status(404).json({ message: 'Quiz not found' });
     
