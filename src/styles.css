@@ -475,6 +475,21 @@ main::-webkit-scrollbar-thumb { background: rgba(255,255,255,.2); border-radius:
   width: fit-content;
   min-width: 220px;
 }
+.social-follow-link-button,
+.social-follow-confirm-button {
+  min-height: 58px;
+  padding: 0 26px;
+  font-size: 1.05rem;
+}
+.social-follow-link-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+.social-follow-confirm-button {
+  min-width: 320px;
+}
 .social-admin-grid { display: grid; gap: 16px; }
 .social-admin-row {
   display: grid;
@@ -968,6 +983,12 @@ select:disabled, button:disabled { opacity: .5; cursor: not-allowed; }
   .social-follow-gate .primary {
     width: 100%;
     min-width: 0;
+  }
+  .social-follow-link-button,
+  .social-follow-confirm-button {
+    min-height: 52px;
+    padding: 0 16px;
+    font-size: 0.98rem;
   }
   .social-admin-actions {
     justify-content: stretch;

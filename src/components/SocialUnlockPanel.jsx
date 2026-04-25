@@ -1,7 +1,7 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../api.js';
 import { useAuth } from '../context/AuthContext.jsx';
-import SocialAccountsSection from './SocialAccountsSection.jsx';
 
 export default function SocialUnlockPanel({ title, message, links = [], onUnlocked }) {
   const { setUser } = useAuth();
@@ -23,14 +23,20 @@ export default function SocialUnlockPanel({ title, message, links = [], onUnlock
   }
 
   return (
-    <SocialAccountsSection title={title} links={links}>
+    <section className="panel social-panel">
+      <div className="section-title">
+        <span>{title}</span>
+      </div>
       <div className="social-follow-gate">
         <p>{message}</p>
         {error && <div className="alert">{error}</div>}
-        <button className="primary" type="button" onClick={confirmSocialFollow} disabled={saving}>
+        <Link className="primary social-follow-link-button" to="/social-links">
+          Follow Social Accounts
+        </Link>
+        <button className="primary social-follow-confirm-button" type="button" onClick={confirmSocialFollow} disabled={saving}>
           {saving ? 'Saving...' : 'I Followed All Accounts'}
         </button>
       </div>
-    </SocialAccountsSection>
+    </section>
   );
 }
