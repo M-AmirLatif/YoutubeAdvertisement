@@ -22,10 +22,45 @@ function VideoTask({ video, progress, onComplete }) {
   const containerRef = useRef(null);
   const playerRef = useRef(null);
   const intervalRef = useRef(null);
-  const accumulatedRef = useRef(progress?.watchedSeconds || 0);
+  const lastSavedRef = useRef(progress?.watchedSeconds || 0);
   const [percent, setPercent] = useState(progress?.percent || 0);
   const [error, setError] = useState('');
   const completed = progress?.completed || percent >= 90;
+
+  async function syncProgress(forceComplete = false) {
+    if (!playerRef.current?.getCurrentTime) return null;
+
+    const duration = Number(playerRef.current.getDuration?.() || video.durationSeconds || 0);
+    const currentTime = Math.max(0, Number(playerRef.current.getCurrentTime?.() || 0));
+    const watchedSeconds = Math.max(progress?.watchedSeconds || 0, Math.floor(currentTime));
+    const nextPercent = duration > 0
+      ? Math.min(100, Math.round((watchedSeconds / duration) * 100))
+      : percent;
+
+    setPercent(nextPercent);
+
+    if (!forceComplete && watchedSeconds <= lastSavedRef.current && nextPercent < 90) {
+      return null;
+    }
+
+    const response = await api(`/progress/${video._id}`, {
+      method: 'POST',
+      body: JSON.stringify({
+        watchedSeconds,
+        percent: forceComplete ? 100 : nextPercent,
+        completed: forceComplete || nextPercent >= 90
+      })
+    });
+
+    lastSavedRef.current = watchedSeconds;
+
+    if (response.progress?.completed) {
+      clearInterval(intervalRef.current);
+      onComplete(video._id, response.progress);
+    }
+
+    return response.progress;
+  }
 
   function toggleFullscreen() {
     const frame = containerRef.current?.parentElement;
@@ -39,61 +74,62 @@ function VideoTask({ video, progress, onComplete }) {
 
   useEffect(() => {
     let mounted = true;
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        syncProgress().catch((err) => setError(err.message));
+      }
+    };
+
     ensureYouTubeApi().then((YT) => {
       if (!mounted || !containerRef.current) return;
       playerRef.current = new YT.Player(containerRef.current, {
         videoId: video.youtubeId,
-        playerVars: { rel: 0, modestbranding: 1, origin: window.location.origin, controls: 0, disablekb: 1 },
+        playerVars: {
+          rel: 0,
+          modestbranding: 1,
+          origin: window.location.origin,
+          controls: 1,
+          disablekb: 0,
+          fs: 1,
+          playsinline: 1
+        },
         events: {
+          onReady: () => {
+            const startAt = Math.max(0, Number(progress?.watchedSeconds || 0));
+            const duration = Number(playerRef.current?.getDuration?.() || video.durationSeconds || 0);
+            if (startAt > 0 && duration > 0 && startAt < duration - 2) {
+              playerRef.current.seekTo(startAt, true);
+            }
+          },
           onStateChange: (event) => {
             if (event.data === YT.PlayerState.PLAYING) {
+              clearInterval(intervalRef.current);
               intervalRef.current = setInterval(() => {
-                accumulatedRef.current += 1;
-                const duration = playerRef.current.getDuration() || video.durationSeconds;
-                const nextPercent = Math.min(100, Math.round((accumulatedRef.current / duration) * 100));
-                
-                setPercent(nextPercent);
-                
-                if (accumulatedRef.current % 5 === 0 || nextPercent >= 90) {
-                  api(`/progress/${video._id}`, {
-                    method: 'POST',
-                    body: JSON.stringify({ watchedSeconds: accumulatedRef.current, percent: nextPercent, completed: nextPercent >= 90 })
-                  }).then(({ progress: next }) => {
-                    if (next.completed) {
-                      clearInterval(intervalRef.current);
-                      onComplete(video._id, next);
-                    }
-                  }).catch((err) => setError(err.message));
-                }
-              }, 1000);
+                syncProgress().catch((err) => setError(err.message));
+              }, 3000);
             } else {
               clearInterval(intervalRef.current);
+              if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.BUFFERING) {
+                syncProgress().catch((err) => setError(err.message));
+              }
             }
             if (event.data === YT.PlayerState.ENDED) {
-              const duration = playerRef.current.getDuration() || video.durationSeconds;
-              if (accumulatedRef.current >= duration * 0.9) {
-                api(`/progress/${video._id}`, {
-                  method: 'POST',
-                  body: JSON.stringify({ watchedSeconds: duration, percent: 100, completed: true })
-                }).then(({ progress: next }) => onComplete(video._id, next));
-              } else {
-                playerRef.current.seekTo(0);
-                playerRef.current.pauseVideo();
-                setError('Skipping is not allowed. Please watch the full video.');
-                accumulatedRef.current = 0;
-                setPercent(0);
-              }
+              syncProgress(true).catch((err) => setError(err.message));
             }
           }
         }
       });
     });
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => {
       mounted = false;
       clearInterval(intervalRef.current);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      syncProgress().catch(() => {});
       playerRef.current?.destroy?.();
     };
-  }, [video._id]);
+  }, [video._id, progress?.watchedSeconds]);
 
   return (
     <article className="video-card">
@@ -107,6 +143,7 @@ function VideoTask({ video, progress, onComplete }) {
         <div>
           <h3>{video.title}</h3>
           <span>${video.reward.toFixed(2)} reward</span>
+          {!completed && <span>Watch the full video inside this website player to complete the task.</span>}
         </div>
         <div className={completed ? 'status done' : 'status'}>
           {completed ? <CheckCircle2 size={18} /> : <PlayCircle size={18} />}
