@@ -26,23 +26,6 @@ const adminItems = [
   { to: '/admin/audit-logs', label: 'Audit Logs', icon: ClipboardList }
 ];
 
-const pageDescriptions = {
-  '/dashboard': 'Overview of earnings, activity, and task momentum.',
-  '/deposit': 'Choose a plan and submit your payment details cleanly.',
-  '/tasks': 'Complete available tasks and track your progress.',
-  '/courses': 'Access training content and helpful learning resources.',
-  '/withdraw': 'Review balance details and submit payout requests.',
-  '/team': 'See referrals, team growth, and member activity.',
-  '/profile': 'Manage account details and security settings.',
-  '/admin': 'Monitor platform totals and core admin metrics.',
-  '/admin/videos': 'Create, edit, and manage all user-facing tasks.',
-  '/admin/courses': 'Organize course content and supporting links.',
-  '/admin/users': 'Review user balances, status, and controls.',
-  '/admin/transactions': 'Handle deposits, withdrawals, and request status.',
-  '/admin/task-history': 'Inspect task completion and reward history.',
-  '/admin/audit-logs': 'Review admin activity and important platform events.'
-};
-
 export default function Layout() {
   const { user, logout } = useAuth();
   const location = useLocation();
