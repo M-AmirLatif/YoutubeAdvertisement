@@ -218,7 +218,7 @@ input:focus {
   color: white; 
   padding: 0; 
   display: grid; 
-  grid-template-rows: 240px minmax(0, 1fr) auto; 
+  grid-template-rows: 240px minmax(0, 1fr) auto auto; 
   position: sticky; 
   top: 0; 
   height: 100vh; 
@@ -277,6 +277,15 @@ input:focus {
   box-shadow: 0 0 10px var(--brand-blue);
 }
 .sidebar nav a:hover:not(.active) { background: rgba(255,255,255,0.05); color: #ffffff; }
+.sidebar-social-section { margin: 0 16px 16px; padding: 14px; border-radius: 18px; border: 1px solid rgba(88, 116, 186, 0.18); background: linear-gradient(180deg, rgba(20, 29, 52, 0.88), rgba(10, 16, 30, 0.88)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.03); }
+.sidebar-section-label { margin-bottom: 10px; color: #92a8cb; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.14em; }
+.sidebar-social-links { display: grid; gap: 8px; }
+.sidebar-social-link { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; text-decoration: none; color: #dbe7ff; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.04); transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease; }
+.sidebar-social-link:hover { background: rgba(59,130,246,0.12); border-color: rgba(59,130,246,0.28); transform: translateY(-1px); }
+.sidebar-social-icon { width: 28px; height: 28px; border-radius: 10px; display: grid; place-items: center; background: rgba(59,130,246,0.12); color: #7fb0ff; flex: 0 0 auto; }
+.sidebar-social-copy { display: grid; min-width: 0; flex: 1; }
+.sidebar-social-copy strong { font-size: 13px; line-height: 1.1; color: #f5f8ff; }
+.sidebar-social-copy small { font-size: 11px; color: #8aa0c4; }
 .logout { justify-content: flex-start; margin: 0 16px 24px; width: calc(100% - 32px); color: #f87171; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.1); }
 .logout:hover { background: rgba(239, 68, 68, 0.15); color: #fca5a5; }
 .nav-divider { color: var(--muted); font-size: 11px; font-weight: 800; text-transform: uppercase; margin: 24px 20px 8px; letter-spacing: 0.1em; }
@@ -743,6 +752,13 @@ select:disabled, button:disabled { opacity: .5; cursor: not-allowed; }
     overflow-y: auto;
     overflow-x: hidden;
   }
+  .sidebar-social-section { margin: 0 10px 12px; padding: 10px; border-radius: 14px; }
+  .sidebar-section-label { margin-bottom: 8px; font-size: 8px; text-align: center; }
+  .sidebar-social-links { gap: 6px; }
+  .sidebar-social-link { padding: 8px 6px; justify-content: center; flex-direction: column; gap: 5px; text-align: center; border-radius: 12px; }
+  .sidebar-social-icon { width: 24px; height: 24px; border-radius: 8px; }
+  .sidebar-social-copy strong { font-size: 8px; }
+  .sidebar-social-copy small { font-size: 7px; }
   .sidebar nav::-webkit-scrollbar { width: 4px; height: auto; }
   .sidebar nav a, .logout {
     width: 100%;
@@ -915,6 +931,12 @@ select:disabled, button:disabled { opacity: .5; cursor: not-allowed; }
   .sidebar-logo::after { left: 8px; right: 8px; }
   .sidebar-logo-mark { width: 72px; height: 38px; }
   .sidebar nav { padding: 10px 6px; gap: 5px; }
+  .sidebar-social-section { margin: 0 6px 10px; padding: 8px 6px; border-radius: 12px; }
+  .sidebar-section-label { font-size: 6px; margin-bottom: 6px; }
+  .sidebar-social-link { padding: 7px 4px; gap: 4px; }
+  .sidebar-social-icon { width: 20px; height: 20px; }
+  .sidebar-social-copy strong { font-size: 7px; }
+  .sidebar-social-copy small { font-size: 6px; }
   .sidebar nav a, .logout { min-height: 52px; padding: 6px 4px; font-size: 8px; border-radius: 12px; gap: 5px; }
   .sidebar nav a svg, .logout svg { width: 13px; height: 13px; }
   .logout { width: calc(100% - 12px); margin: 0 6px 10px; }

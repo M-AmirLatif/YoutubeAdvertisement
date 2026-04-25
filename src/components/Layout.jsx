@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
-import { BookOpen, ClipboardList, Clapperboard, Crown, Gauge, Home, LogOut, Menu, ReceiptText, UserCog, UsersRound, WalletCards, X } from 'lucide-react';
+import { BookOpen, ClipboardList, Clapperboard, Crown, ExternalLink, Gauge, Home, Instagram, LogOut, Menu, MessageCircle, ReceiptText, Send, UserCog, UsersRound, WalletCards, X } from 'lucide-react';
+import { api } from '../api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { branding } from '../config/branding.js';
 import logo from '../assets/logo.png';
@@ -26,11 +27,20 @@ const adminItems = [
   { to: '/admin/audit-logs', label: 'Audit Logs', icon: ClipboardList }
 ];
 
+const socialIconMap = {
+  'whatsapp-group': MessageCircle,
+  'whatsapp-channel': MessageCircle,
+  instagram: Instagram,
+  x: ExternalLink,
+  telegram: Send
+};
+
 export default function Layout() {
   const { user, logout } = useAuth();
   const location = useLocation();
   const isDashboard = location.pathname === '/dashboard';
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [socialLinks, setSocialLinks] = useState([]);
   const currentLabel = useMemo(() => {
     const items = [...adminItems, ...navItems];
     return items.find((item) => item.to === location.pathname)?.label || 'Workspace';
@@ -39,6 +49,29 @@ export default function Layout() {
   useEffect(() => {
     setMobileSidebarOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadSocialLinks() {
+      if (!user) {
+        setSocialLinks([]);
+        return;
+      }
+      try {
+        const response = await api('/users/social-settings');
+        if (!cancelled) setSocialLinks(response.socialLinks || []);
+      } catch {
+        if (!cancelled) setSocialLinks([]);
+      }
+    }
+
+    loadSocialLinks();
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
   return (
     <div className="app-shell">
       <button
@@ -87,6 +120,32 @@ export default function Layout() {
             </NavLink>
           ))}
         </nav>
+        {!!socialLinks.length && (
+          <section className="sidebar-social-section">
+            <div className="sidebar-section-label">Social Accounts</div>
+            <div className="sidebar-social-links">
+              {socialLinks.map((item) => {
+                const Icon = socialIconMap[item.platform] || ExternalLink;
+                return (
+                  <a
+                    key={`${item.platform}-${item.url}`}
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="sidebar-social-link"
+                  >
+                    <span className="sidebar-social-icon"><Icon size={14} /></span>
+                    <span className="sidebar-social-copy">
+                      <strong>{item.name}</strong>
+                      <small>Open link</small>
+                    </span>
+                    <ExternalLink size={12} />
+                  </a>
+                );
+              })}
+            </div>
+          </section>
+        )}
         <button className="logout" onClick={() => {
           setMobileSidebarOpen(false);
           logout();
