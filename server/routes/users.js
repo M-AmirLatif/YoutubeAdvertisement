@@ -2,6 +2,7 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
 import Progress from '../models/Progress.js';
+import Video from '../models/Video.js';
 import Quiz from '../models/Quiz.js';
 import QuizProgress from '../models/QuizProgress.js';
 import Transaction from '../models/Transaction.js';
