@@ -124,11 +124,12 @@ router.post('/:id/submit', requireAuth, async (req, res) => {
 
     // Credit reward
     if (quiz.reward > 0) {
-      await User.findByIdAndUpdate(user._id, { $inc: { balance: quiz.reward } });
+      await User.findByIdAndUpdate(user._id, { $inc: { balance: quiz.reward, todayEarnings: quiz.reward } });
       await Transaction.create({
         user: user._id,
-        type: 'task',
+        type: 'earning',
         amount: quiz.reward,
+        earningSource: 'mcq_task',
         status: 'approved',
         notes: `Reward for completing MCQ Task: ${quiz.title} (Score: ${score}/${quiz.questions.length})`
       });

@@ -21,7 +21,8 @@ export default function Dashboard() {
   const stats = data?.stats || {
     completedToday: 0,
     totalCompleted: 0,
-    dailyLimit: user?.activePlan?.dailyLimit || 5,
+    completedAvailableTasks: 0,
+    totalAvailableTasks: 0,
     progressPercent: 0,
     referralEarnings: 0,
     taskEarningsToday: 0,
@@ -62,7 +63,13 @@ export default function Dashboard() {
         <div className="history-cards">
           <StatCard label="Total Plan Fees Paid" value={`$${planFeesPaid.toFixed(2)}`} tone="gray" icon={ReceiptText} />
           <StatCard label="Total Withdrawn" value={`$${(user?.totalWithdrawn || 0).toFixed(2)}`} tone="red" icon={RefreshCcw} />
-          <StatCard label="Daily Tasks" value={`${stats.completedToday || 0} / ${stats.dailyLimit || 0}`} tone="blue" icon={CheckSquare} />
+          <StatCard
+            label="Tasks Completed"
+            value={`${stats.completedAvailableTasks || 0} / ${stats.totalAvailableTasks || 0}`}
+            hint={`${stats.totalCompleted || 0} total completed overall`}
+            tone="blue"
+            icon={CheckSquare}
+          />
         </div>
       </section>
 

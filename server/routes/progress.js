@@ -17,17 +17,9 @@ router.post('/:videoId', requireAuth, rateLimit({ windowMs: 60_000, max: 120, ke
   if (!video || !video.isActive) return res.status(404).json({ message: 'Video not found.' });
 
   const existing = await Progress.findOne({ user: req.user._id, video: video._id });
-  const startOfDay = new Date();
-  startOfDay.setHours(0, 0, 0, 0);
-  const completedToday = await Progress.countDocuments({
-    user: req.user._id,
-    completed: true,
-    completedAt: { $gte: startOfDay }
-  });
   const alreadyCompleted = Boolean(existing?.completed);
-  const dailyLimitReached = completedToday >= req.user.activePlan.dailyLimit && !alreadyCompleted;
   const meetsMinimumWatch = watchedSeconds >= Math.min(MIN_WATCH_SECONDS, Math.max(1, video.durationSeconds - 2));
-  const shouldComplete = !dailyLimitReached && meetsMinimumWatch && (completed || percent >= TASK_COMPLETION_PERCENT || watchedSeconds >= Math.max(1, video.durationSeconds - 2));
+  const shouldComplete = meetsMinimumWatch && (alreadyCompleted || completed || percent >= TASK_COMPLETION_PERCENT || watchedSeconds >= Math.max(1, video.durationSeconds - 2));
 
   const progress = await Progress.findOneAndUpdate(
     { user: req.user._id, video: video._id },
@@ -41,10 +33,6 @@ router.post('/:videoId', requireAuth, rateLimit({ windowMs: 60_000, max: 120, ke
     },
     { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
   );
-
-  if (dailyLimitReached) {
-    return res.status(429).json({ message: 'Daily task limit reached for your active plan.', progress });
-  }
 
   if (shouldComplete) {
     const rewardClaim = await Progress.findOneAndUpdate(

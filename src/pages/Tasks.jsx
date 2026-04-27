@@ -214,9 +214,10 @@ export default function Tasks() {
   }
 
   const completedVideos = Object.values(progressByVideo).filter((item) => item.completed).length;
-  const dailyLimit = user?.activePlan?.dailyLimit || videos.length || 0;
-  const displayCompleted = Math.min(dailyLimit, completedVideos);
-  const progressPercent = dailyLimit ? (displayCompleted / dailyLimit) * 100 : 0;
+  const completedQuizzes = Object.values(progressByQuiz).filter((item) => item.completed).length;
+  const totalAvailableTasks = videos.length + quizzes.length;
+  const totalCompletedTasks = completedVideos + completedQuizzes;
+  const progressPercent = totalAvailableTasks ? (totalCompletedTasks / totalAvailableTasks) * 100 : 0;
 
   if (!socialFollowCompleted) {
     return (
@@ -235,10 +236,10 @@ export default function Tasks() {
     <div className="tasks-page">
       <section className="survey-progress" style={{ marginBottom: '20px' }}>
         <div>
-          <h2>Today's Progress</h2>
+          <h2>Task Progress</h2>
           <div className="survey-track"><span style={{ width: `${progressPercent}%` }} /></div>
         </div>
-        <strong>{displayCompleted} / {dailyLimit}</strong>
+        <strong>{totalCompletedTasks} / {totalAvailableTasks}</strong>
       </section>
 
       <div className="segmented-actions tight">

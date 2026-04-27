@@ -2,6 +2,8 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
 import Progress from '../models/Progress.js';
+import Quiz from '../models/Quiz.js';
+import QuizProgress from '../models/QuizProgress.js';
 import Transaction from '../models/Transaction.js';
 import { requireAuth } from '../middleware/auth.js';
 import { getAppSettings } from '../utils/appSettings.js';
@@ -16,13 +18,23 @@ router.get('/dashboard', requireAuth, async (req, res) => {
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
 
-  const [completedToday, totalCompleted, transactions, directReferrals, levelTwoReferrals, taskEarningsToday, planEarningsToday, referralEarningsToday, referralEarnings] = await Promise.all([
+  const [activeVideos, activeQuizzes, completedVideosToday, completedQuizzesToday, totalCompletedVideos, totalCompletedQuizzes, completedActiveVideoRows, completedActiveQuizRows, transactions, directReferrals, levelTwoReferrals, taskEarningsToday, legacyTaskEarningsToday, planEarningsToday, referralEarningsToday, referralEarnings] = await Promise.all([
+    Video.find({ isActive: true }).select('_id'),
+    Quiz.find({ isActive: true }).select('_id'),
     Progress.countDocuments({
       user: user._id,
       completed: true,
       completedAt: { $gte: startOfDay }
     }),
+    QuizProgress.countDocuments({
+      user: user._id,
+      completed: true,
+      createdAt: { $gte: startOfDay }
+    }),
     Progress.countDocuments({ user: user._id, completed: true }),
+    QuizProgress.countDocuments({ user: user._id, completed: true }),
+    Progress.find({ user: user._id, completed: true }).select('video'),
+    QuizProgress.find({ user: user._id, completed: true }).select('quiz'),
     Transaction.find({ user: user._id }).sort({ createdAt: -1 }).limit(8),
     User.countDocuments({ referredBy: user._id }),
     User.aggregate([
@@ -44,7 +56,18 @@ router.get('/dashboard', requireAuth, async (req, res) => {
           user: user._id,
           status: 'approved',
           type: 'earning',
-          earningSource: 'video_task',
+          earningSource: { $in: ['video_task', 'mcq_task'] },
+          createdAt: { $gte: startOfDay }
+        }
+      },
+      { $group: { _id: null, total: { $sum: '$amount' } } }
+    ]),
+    Transaction.aggregate([
+      {
+        $match: {
+          user: user._id,
+          status: 'approved',
+          type: 'task',
           createdAt: { $gte: startOfDay }
         }
       },
@@ -72,7 +95,15 @@ router.get('/dashboard', requireAuth, async (req, res) => {
     ])
   ]);
 
-  const todayTaskEarnings = taskEarningsToday[0]?.total || 0;
+  const activeVideoIds = new Set(activeVideos.map((item) => String(item._id)));
+  const activeQuizIds = new Set(activeQuizzes.map((item) => String(item._id)));
+  const completedActiveVideos = completedActiveVideoRows.filter((item) => activeVideoIds.has(String(item.video))).length;
+  const completedActiveQuizzes = completedActiveQuizRows.filter((item) => activeQuizIds.has(String(item.quiz))).length;
+  const totalAvailableTasks = activeVideos.length + activeQuizzes.length;
+  const completedAvailableTasks = completedActiveVideos + completedActiveQuizzes;
+  const completedToday = completedVideosToday + completedQuizzesToday;
+  const totalCompleted = totalCompletedVideos + totalCompletedQuizzes;
+  const todayTaskEarnings = (taskEarningsToday[0]?.total || 0) + (legacyTaskEarningsToday[0]?.total || 0);
   const todayPlanEarnings = planEarningsToday[0]?.total || 0;
   const todayReferralEarnings = referralEarningsToday[0]?.total || 0;
   const todayTotalEarnings = todayTaskEarnings + todayPlanEarnings + todayReferralEarnings;
@@ -86,10 +117,11 @@ router.get('/dashboard', requireAuth, async (req, res) => {
     stats: {
       completedToday,
       totalCompleted,
+      completedAvailableTasks,
+      totalAvailableTasks,
       directReferrals,
       levelTwoReferrals: levelTwoReferrals[0]?.total || 0,
-      dailyLimit: user.activePlan.dailyLimit,
-      progressPercent: Math.min(100, Math.round((completedToday / user.activePlan.dailyLimit) * 100)),
+      progressPercent: totalAvailableTasks ? Math.min(100, Math.round((completedAvailableTasks / totalAvailableTasks) * 100)) : 0,
       referralEarnings: referralEarnings[0]?.total || user.referralEarnings || 0,
       taskEarningsToday: todayTaskEarnings,
       planEarningsToday: todayPlanEarnings,
